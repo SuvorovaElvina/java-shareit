@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
-    private final HashMap<Long, User> users = new HashMap<>();
+    private final Map<Long, User> users = new HashMap<>();
     private long index = 1;
 
     @Override
