@@ -1,23 +1,24 @@
 package ru.practicum.shareit.user.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DuplicateException;
 import ru.practicum.shareit.exception.IncorrectCountException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.user.repository.UserRepositoryImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserRepository repository = new UserRepositoryImpl();
-    private final UserMapper mapper = new UserMapper();
+    private final UserRepository repository;
+    private final UserMapper mapper;
 
     @Override
     public User add(UserDto userDto) {
@@ -76,10 +77,7 @@ public class UserServiceImpl implements UserService {
     private void validateId(long id) {
         if (id < 0) {
             throw new IncorrectCountException("id не должно быть меньше 0.");
-        }
-        try {
-            repository.getAll().get(id);
-        } catch (NullPointerException e) {
+        } else if (!repository.getAll().containsKey(id)) {
             throw new NotFoundException(String.format("Пользователь с id %d - не существует.", id));
         }
     }
