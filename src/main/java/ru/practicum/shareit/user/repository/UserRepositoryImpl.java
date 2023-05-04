@@ -14,11 +14,6 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User add(User user) {
-        for (User user1 : users.values()) {
-            if (user1.getEmail().equals(user.getEmail())) {
-                throw new DuplicateException("Эта почта уже используется, введите другую.");
-            }
-        }
         user.setId(index++);
         users.put(user.getId(), user);
         return user;

@@ -19,6 +19,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User add(User user) {
+        for (User user1 : repository.getAll().values()) {
+            if (user1.getEmail().equals(user.getEmail())) {
+                throw new DuplicateException("Эта почта уже используется, введите другую.");
+            }
+        }
         return repository.add(user);
     }
 
