@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.exception.DuplicateException;
@@ -13,8 +12,7 @@ import ru.practicum.shareit.user.repository.UserRepositoryImpl;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceImplTest {
     private final UserRepository repository = new UserRepositoryImpl();
@@ -48,7 +46,7 @@ class UserServiceImplTest {
                     .email("email@mail.ru").build());
         });
 
-        Assertions.assertNotNull(thrown.getMessage());
+        assertNotNull(thrown.getMessage());
     }
 
     @Test
@@ -92,7 +90,7 @@ class UserServiceImplTest {
             service.update(user.getId(), mapper.toUserDto(user));
         });
 
-        Assertions.assertNotNull(thrown.getMessage());
+        assertNotNull(thrown.getMessage());
     }
 
     @Test
@@ -123,7 +121,7 @@ class UserServiceImplTest {
             service.getById(-1);
         });
 
-        Assertions.assertNotNull(thrown.getMessage());
+        assertNotNull(thrown.getMessage());
     }
 
     @Test
@@ -132,7 +130,7 @@ class UserServiceImplTest {
             service.getById(999);
         });
 
-        Assertions.assertNotNull(thrown.getMessage());
+        assertNotNull(thrown.getMessage());
     }
 
     @Test
@@ -169,7 +167,7 @@ class UserServiceImplTest {
             service.delete(-1);
         });
 
-        Assertions.assertNotNull(thrown.getMessage());
+        assertNotNull(thrown.getMessage());
     }
 
     @Test
@@ -178,6 +176,6 @@ class UserServiceImplTest {
             service.delete(999);
         });
 
-        Assertions.assertNotNull(thrown.getMessage());
+        assertNotNull(thrown.getMessage());
     }
 }
