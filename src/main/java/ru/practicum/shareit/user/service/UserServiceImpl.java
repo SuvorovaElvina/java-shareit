@@ -66,6 +66,7 @@ public class UserServiceImpl implements UserService {
                 user.setName(userDto.getName());
             }
         } catch (NullPointerException e) {
+            return;
         }
     }
 
@@ -80,6 +81,7 @@ public class UserServiceImpl implements UserService {
                 user.setEmail(userDto.getEmail());
             }
         } catch (NullPointerException e) {
+            return;
         }
     }
 }

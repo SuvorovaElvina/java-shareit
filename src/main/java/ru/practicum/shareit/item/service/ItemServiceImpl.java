@@ -83,6 +83,7 @@ public class ItemServiceImpl implements ItemService {
                 item.setName(itemDto.getName());
             }
         } catch (NullPointerException e) {
+            return;
         }
     }
 
@@ -92,6 +93,7 @@ public class ItemServiceImpl implements ItemService {
                 item.setDescription(itemDto.getDescription());
             }
         } catch (NullPointerException e) {
+            return;
         }
     }
 
@@ -100,6 +102,7 @@ public class ItemServiceImpl implements ItemService {
             itemDto.getAvailable().toString();
             item.setAvailable(itemDto.getAvailable());
         } catch (NullPointerException e) {
+            return;
         }
     }
 }
