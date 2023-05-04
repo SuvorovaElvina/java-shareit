@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
         try {
             if (!userDto.getEmail().isBlank()) {
                 for (User user1 : repository.getAll().values()) {
-                    if (user1.getEmail().equals(userDto.getEmail()) & (!user.getId().equals(user1.getId()))) {
+                    if (user1.getEmail().equals(userDto.getEmail()) && (!user.getId().equals(user1.getId()))) {
                         throw new DuplicateException("Эта почта уже используется, введите другую.");
                     }
                 }
