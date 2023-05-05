@@ -9,8 +9,8 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +19,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User add(User user) {
-        for (User user1 : repository.getAll()) {
+        for (User user1 : repository.getAll().values()) {
             if (user1.getEmail().equals(user.getEmail())) {
                 throw new DuplicateException("Эта почта уже используется, введите другую.");
             }
@@ -37,21 +37,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getById(long id) {
-        Optional<User> opt = repository.getById(id);
-        if (opt.isPresent()) {
-            return opt.get();
-        } else {
-            if (id < 0) {
-                throw new IncorrectCountException("id не должно быть меньше 0.");
-            } else {
-                throw new NotFoundException(String.format("Пользователя с id %d - не существует.", id));
-            }
-        }
+        validateId(id);
+        return repository.getAll().get(id);
     }
 
     @Override
     public List<User> getAll() {
-        return repository.getAll();
+        return new ArrayList<>(repository.getAll().values());
     }
 
     @Override
@@ -63,7 +55,7 @@ public class UserServiceImpl implements UserService {
     private void validateId(long id) {
         if (id < 0) {
             throw new IncorrectCountException("id не должно быть меньше 0.");
-        } else if (repository.getById(id).isEmpty()) {
+        } else if (!repository.getAll().containsKey(id)) {
             throw new NotFoundException(String.format("Пользователь с id %d - не существует.", id));
         }
     }
@@ -81,7 +73,7 @@ public class UserServiceImpl implements UserService {
     private void updateEmail(User user, UserDto userDto) {
         try {
             if (!userDto.getEmail().isBlank()) {
-                for (User user1 : repository.getAll()) {
+                for (User user1 : repository.getAll().values()) {
                     if (user1.getEmail().equals(userDto.getEmail()) && (!user.getId().equals(user1.getId()))) {
                         throw new DuplicateException("Эта почта уже используется, введите другую.");
                     }

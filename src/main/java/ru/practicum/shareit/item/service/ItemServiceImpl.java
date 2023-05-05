@@ -12,8 +12,6 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,22 +41,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item getById(long id) {
-        Optional<Item> opt = repository.getById(id);
-        if (opt.isPresent()) {
-            return opt.get();
-        } else {
-            if (id < 0) {
-                throw new IncorrectCountException("id не должно быть меньше 0.");
-            } else {
-                throw new NotFoundException(String.format("Пользователя с id %d - не существует.", id));
-            }
-        }
+        validateId(id);
+        return repository.getAll().get(id);
     }
 
     @Override
     public List<Item> getAll(long userId) {
         List<Item> items = new ArrayList<>();
-        for (Item item : repository.getAll()) {
+        for (Item item : repository.getAll().values()) {
             if (item.getOwner().getId().equals(userId)) {
                 items.add(item);
             }
@@ -70,8 +60,8 @@ public class ItemServiceImpl implements ItemService {
     public List<Item> searchText(long userId, String text) {
         List<Item> items = new ArrayList<>();
         if (!text.isBlank()) {
-            for (Item item : repository.getAll()) {
-                if (item.toString().toLowerCase().contains(text.toLowerCase()) && !Objects.equals(item.isAvailable(), false)) {
+            for (Item item : repository.getAll().values()) {
+                if (item.toString().toLowerCase().contains(text.toLowerCase()) && !item.toString().toLowerCase().contains("false")) {
                     items.add(item);
                 }
             }
@@ -82,7 +72,7 @@ public class ItemServiceImpl implements ItemService {
     private void validateId(long id) {
         if (id < 0) {
             throw new IncorrectCountException("id не должно быть меньше 0.");
-        } else if (repository.getById(id).isEmpty()) {
+        } else if (!repository.getAll().containsKey(id)) {
             throw new NotFoundException(String.format("Пользователь с id %d - не существует.", id));
         }
     }

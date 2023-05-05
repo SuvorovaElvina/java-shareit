@@ -3,7 +3,8 @@ package ru.practicum.shareit.item.repository;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Repository
 public class ItemRepositoryImpl implements ItemRepository {
@@ -29,12 +30,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Optional<Item> getById(long id) {
-        return Optional.of(items.get(id));
-    }
-
-    @Override
-    public List<Item> getAll() {
-        return new ArrayList<>(items.values());
+    public Map<Long, Item> getAll() {
+        return items;
     }
 }

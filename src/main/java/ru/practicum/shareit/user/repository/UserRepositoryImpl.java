@@ -3,7 +3,8 @@ package ru.practicum.shareit.user.repository;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
@@ -29,12 +30,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Optional<User> getById(long id) {
-        return Optional.of(users.get(id));
-    }
-
-    @Override
-    public List<User> getAll() {
-        return new ArrayList<>(users.values());
+    public Map<Long, User> getAll() {
+        return users;
     }
 }
