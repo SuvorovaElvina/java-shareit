@@ -2,7 +2,8 @@ package ru.practicum.shareit.item.repository;
 
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 
 public interface ItemRepository {
     Item add(Item item);
@@ -11,5 +12,7 @@ public interface ItemRepository {
 
     void delete(long id);
 
-    Map<Long, Item> getAll();
+    Optional<Item> getById(long id);
+
+    List<Item> getAll();
 }
