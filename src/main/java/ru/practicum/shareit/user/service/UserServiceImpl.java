@@ -9,8 +9,8 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,16 +37,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getById(long id) {
-        Optional<User> opt = repository.getById(id);
-        if (opt.isPresent()) {
-            return opt.get();
-        } else {
-            if (id < 0) {
-                throw new IncorrectCountException("id не должно быть меньше 0.");
-            } else {
-                throw new NotFoundException(String.format("Пользователя с id %d - не существует.", id));
-            }
-        }
+        validateId(id);
+        return repository.getById(id);
     }
 
     @Override
@@ -61,10 +53,14 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateId(long id) {
-        if (id < 0) {
-            throw new IncorrectCountException("id не должно быть меньше 0.");
-        } else if (repository.getById(id).isEmpty()) {
-            throw new NotFoundException(String.format("Пользователь с id %d - не существует.", id));
+        try {
+            repository.getById(id).getId();
+        } catch (NullPointerException e) {
+            if (id < 0) {
+                throw new IncorrectCountException("id не должно быть меньше 0.");
+            } else {
+                throw new NotFoundException(String.format("Пользователь с id %d - не существует.", id));
+            }
         }
     }
 
