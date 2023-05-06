@@ -2,7 +2,8 @@ package ru.practicum.shareit.user.repository;
 
 import ru.practicum.shareit.user.model.User;
 
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 
 public interface UserRepository {
     User add(User user);
@@ -11,5 +12,7 @@ public interface UserRepository {
 
     void delete(long id);
 
-    Map<Long, User> getAll();
+    Optional<User> getById(long id);
+
+    List<User> getAll();
 }
