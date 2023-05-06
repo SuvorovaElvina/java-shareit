@@ -62,7 +62,7 @@ public class ItemServiceImpl implements ItemService {
         List<Item> items = new ArrayList<>();
         if (!text.isBlank()) {
             for (Item item : repository.getAll()) {
-                if (item.toString().toLowerCase().contains(text.toLowerCase()) && !Objects.equals(item.isAvailable(), false)) {
+                if (item.toString().toLowerCase().contains(text.toLowerCase()) && !item.isAvailable()) {
                     items.add(item);
                 }
             }
