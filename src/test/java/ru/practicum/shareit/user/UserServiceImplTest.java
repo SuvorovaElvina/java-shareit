@@ -117,20 +117,20 @@ class UserServiceImplTest {
 
     @Test
     void getByIdNegative() {
-        Throwable thrown = assertThrows(NullPointerException.class, () -> {
+        Throwable thrown = assertThrows(IncorrectCountException.class, () -> {
             service.getById(-1);
         });
 
-        assertNull(thrown.getMessage());
+        assertNotNull(thrown.getMessage());
     }
 
     @Test
     void getByIdUnknown() {
-        Throwable thrown = assertThrows(NullPointerException.class, () -> {
+        Throwable thrown = assertThrows(NotFoundException.class, () -> {
             service.getById(999);
         });
 
-        assertNull(thrown.getMessage());
+        assertNotNull(thrown.getMessage());
     }
 
     @Test
@@ -172,10 +172,10 @@ class UserServiceImplTest {
 
     @Test
     void deleteByIdUnknown() {
-        Throwable thrown = assertThrows(NullPointerException.class, () -> {
+        Throwable thrown = assertThrows(NotFoundException.class, () -> {
             service.delete(999);
         });
 
-        assertNull(thrown.getMessage());
+        assertNotNull(thrown.getMessage());
     }
 }

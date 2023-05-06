@@ -47,7 +47,7 @@ class ItemServiceImplTest {
 
     @Test
     void addUserIdNegative() {
-        Throwable thrown = assertThrows(NotFoundException.class, () -> {
+        Throwable thrown = assertThrows(IncorrectCountException.class, () -> {
             itemService.add(-1, Item.builder().build());
         });
 
@@ -148,20 +148,20 @@ class ItemServiceImplTest {
 
     @Test
     void getByIdNegative() {
-        Throwable thrown = assertThrows(NullPointerException.class, () -> {
+        Throwable thrown = assertThrows(IncorrectCountException.class, () -> {
             itemService.getById(-1);
         });
 
-        assertNull(thrown.getMessage());
+        assertNotNull(thrown.getMessage());
     }
 
     @Test
     void getByIdUnknown() {
-        Throwable thrown = assertThrows(NullPointerException.class, () -> {
+        Throwable thrown = assertThrows(NotFoundException.class, () -> {
             itemService.getById(999);
         });
 
-        assertNull(thrown.getMessage());
+        assertNotNull(thrown.getMessage());
     }
 
     @Test
