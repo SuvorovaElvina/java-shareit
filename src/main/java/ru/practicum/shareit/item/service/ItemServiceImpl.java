@@ -12,6 +12,7 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +62,7 @@ public class ItemServiceImpl implements ItemService {
         List<Item> items = new ArrayList<>();
         if (!text.isBlank()) {
             for (Item item : repository.getAll()) {
-                if (item.toString().toLowerCase().contains(text.toLowerCase()) && !item.isAvailable()) {
+                if (item.toString().toLowerCase().contains(text.toLowerCase()) && !Objects.equals(item.isAvailable(), false)) {
                     items.add(item);
                 }
             }
