@@ -3,9 +3,9 @@ package ru.practicum.shareit.user.model;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "users")
@@ -18,9 +18,8 @@ import javax.validation.constraints.NotBlank;
 public class User {
     @Id
     Long id;
-    @NotBlank
+
     String name;
-    @Email
-    @NotBlank
+
     String email;
 }
