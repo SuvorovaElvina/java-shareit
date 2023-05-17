@@ -13,8 +13,10 @@ import javax.validation.constraints.NotBlank;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDto {
     Long id;
+
     @NotBlank(message = "Имя не должно быть пустым.")
     String name;
+
     @NotBlank(message = "Email не должно быть пустым.")
     @Email(message = "Введён не email.")
     String email;
