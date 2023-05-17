@@ -10,20 +10,24 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
 
+    private long index = 1;
+
     @Override
     public User add(User user) {
-        for (User user1 : repository.getAll()) {
+        user.setId(index++);
+        for (User user1 : repository.findAll()) {
             if (user1.getEmail().equals(user.getEmail())) {
                 throw new DuplicateException("Эта почта уже используется, введите другую.");
             }
         }
-        return repository.add(user);
+        return repository.save(user);
     }
 
     @Override
@@ -31,30 +35,30 @@ public class UserServiceImpl implements UserService {
         User user = getById(id);
         updateName(user, userDto);
         updateEmail(user, userDto);
-        return repository.update(user);
+        return repository.save(user);
     }
 
     @Override
     public User getById(long id) {
         validateId(id);
-        return repository.getById(id);
+        return repository.findById(id).get();
     }
 
     @Override
     public List<User> getAll() {
-        return repository.getAll();
+        return repository.findAll();
     }
 
     @Override
     public void delete(long id) {
         validateId(id);
-        repository.delete(id);
+        repository.deleteById(id);
     }
 
     private void validateId(long id) {
         try {
-            repository.getById(id).getId();
-        } catch (NullPointerException e) {
+            repository.findById(id).get();
+        } catch (NoSuchElementException e) {
             if (id < 0) {
                 throw new IncorrectCountException("id не должно быть меньше 0.");
             } else {
@@ -76,7 +80,7 @@ public class UserServiceImpl implements UserService {
     private void updateEmail(User user, UserDto userDto) {
         try {
             if (!userDto.getEmail().isBlank()) {
-                for (User user1 : repository.getAll()) {
+                for (User user1 : repository.findAll()) {
                     if (user1.getEmail().equals(userDto.getEmail()) && (!user.getId().equals(user1.getId()))) {
                         throw new DuplicateException("Эта почта уже используется, введите другую.");
                     }
