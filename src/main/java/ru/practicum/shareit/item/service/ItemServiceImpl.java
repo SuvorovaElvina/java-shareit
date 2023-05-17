@@ -12,7 +12,7 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +23,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item add(long id, Item item) {
         item.setOwner(service.getById(id));
-        return repository.add(item);
+        return repository.save(item);
     }
 
     @Override
@@ -34,6 +34,7 @@ public class ItemServiceImpl implements ItemService {
             updateName(item, itemDto);
             updateDescription(item, itemDto);
             updateAvailable(item, itemDto);
+            repository.save(item);
         } else {
             throw new NotFoundException(String.format("Вы не являетесь владельцем вещи под номером %d", itemId));
         }
@@ -43,13 +44,13 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item getById(long id) {
         validateId(id);
-        return repository.getById(id);
+        return repository.findById(id).get();
     }
 
     @Override
     public List<Item> getAll(long userId) {
         List<Item> items = new ArrayList<>();
-        for (Item item : repository.getAll()) {
+        for (Item item : repository.findAll()) {
             if (item.getOwner().getId().equals(userId)) {
                 items.add(item);
             }
@@ -59,21 +60,17 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> searchText(long userId, String text) {
-        List<Item> items = new ArrayList<>();
-        if (!text.isBlank()) {
-            for (Item item : repository.getAll()) {
-                if (item.toString().toLowerCase().contains(text.toLowerCase()) && !Objects.equals(item.isAvailable(), false)) {
-                    items.add(item);
-                }
-            }
+        if (text.isBlank()) {
+            return new ArrayList<>();
+        } else {
+            return repository.search(text);
         }
-        return items;
     }
 
     private void validateId(long id) {
         try {
-            repository.getById(id).isAvailable();
-        } catch (NullPointerException e) {
+            repository.findById(id).get();
+        } catch (NoSuchElementException e) {
             if (id < 0) {
                 throw new IncorrectCountException("id не должно быть меньше 0.");
             } else {
