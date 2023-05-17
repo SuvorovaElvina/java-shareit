@@ -12,7 +12,7 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,8 +43,16 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item getById(long id) {
-        validateId(id);
-        return repository.findById(id).get();
+        Optional<Item> optional = repository.findById(id);
+        if (optional.isEmpty()) {
+            if (id < 0) {
+                throw new IncorrectCountException("id не должно быть меньше 0.");
+            } else {
+                throw new NotFoundException(String.format("Пользователь с id %d - не существует.", id));
+            }
+        } else {
+            return optional.get();
+        }
     }
 
     @Override
@@ -64,18 +72,6 @@ public class ItemServiceImpl implements ItemService {
             return new ArrayList<>();
         } else {
             return repository.search(text);
-        }
-    }
-
-    private void validateId(long id) {
-        try {
-            repository.findById(id).get();
-        } catch (NoSuchElementException e) {
-            if (id < 0) {
-                throw new IncorrectCountException("id не должно быть меньше 0.");
-            } else {
-                throw new NotFoundException(String.format("Пользователь с id %d - не существует.", id));
-            }
         }
     }
 

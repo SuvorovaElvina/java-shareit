@@ -10,7 +10,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,8 +40,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getById(long id) {
-        validateId(id);
-        return repository.findById(id).get();
+        Optional<User> optional = repository.findById(id);
+        if (optional.isEmpty()) {
+            if (id < 0) {
+                throw new IncorrectCountException("id не должно быть меньше 0.");
+            } else {
+                throw new NotFoundException(String.format("Пользователь с id %d - не существует.", id));
+            }
+        } else {
+            return optional.get();
+        }
     }
 
     @Override
@@ -51,20 +59,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(long id) {
-        validateId(id);
+        getById(id);
         repository.deleteById(id);
-    }
-
-    private void validateId(long id) {
-        try {
-            repository.findById(id).get();
-        } catch (NoSuchElementException e) {
-            if (id < 0) {
-                throw new IncorrectCountException("id не должно быть меньше 0.");
-            } else {
-                throw new NotFoundException(String.format("Пользователь с id %d - не существует.", id));
-            }
-        }
     }
 
     private void updateName(User user, UserDto userDto) {
