@@ -35,10 +35,10 @@ public class ItemServiceImpl implements ItemService {
             updateDescription(item, itemDto);
             updateAvailable(item, itemDto);
             repository.save(item);
+            return item;
         } else {
             throw new NotFoundException(String.format("Вы не являетесь владельцем вещи под номером %d", itemId));
         }
-        return item;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ItemServiceImpl implements ItemService {
             if (id < 0) {
                 throw new IncorrectCountException("id не должно быть меньше 0.");
             } else {
-                throw new NotFoundException(String.format("Пользователь с id %d - не существует.", id));
+                throw new NotFoundException(String.format("Вещь с id %d - не существует.", id));
             }
         } else {
             return optional.get();
@@ -57,13 +57,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> getAll(long userId) {
-        List<Item> items = new ArrayList<>();
-        for (Item item : repository.findAll()) {
-            if (item.getOwner().getId().equals(userId)) {
-                items.add(item);
-            }
-        }
-        return items;
+        return repository.findByOwnerIdOrderByIdAsc(userId);
     }
 
     @Override
