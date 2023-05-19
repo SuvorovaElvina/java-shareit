@@ -2,7 +2,6 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.DuplicateException;
 import ru.practicum.shareit.exception.IncorrectCountException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -17,16 +16,8 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
 
-    private long index = 1;
-
     @Override
     public User add(User user) {
-        user.setId(index++);
-        for (User user1 : repository.findAll()) {
-            if (user1.getEmail().equals(user.getEmail())) {
-                throw new DuplicateException("Эта почта уже используется, введите другую.");
-            }
-        }
         return repository.save(user);
     }
 
@@ -76,11 +67,6 @@ public class UserServiceImpl implements UserService {
     private void updateEmail(User user, UserDto userDto) {
         try {
             if (!userDto.getEmail().isBlank()) {
-                for (User user1 : repository.findAll()) {
-                    if (user1.getEmail().equals(userDto.getEmail()) && (!user.getId().equals(user1.getId()))) {
-                        throw new DuplicateException("Эта почта уже используется, введите другую.");
-                    }
-                }
                 user.setEmail(userDto.getEmail());
             }
         } catch (NullPointerException e) {
