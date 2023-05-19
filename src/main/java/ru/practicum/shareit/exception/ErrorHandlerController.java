@@ -10,16 +10,20 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class ErrorHandlerController {
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleDuplicateException(final DuplicateException e) {
-        return Map.of("Ошибка валидации", e.getMessage());
-    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidationException(final ValidationException e) {
-        return Map.of("Ошибка валидации", e.getMessage());
+        return Map.of(
+                "error", "Ошибка валидации",
+                "errorMessage", e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleUnknownStateException(final UnknownStateException e) {
+        return Map.of("error", e.getMessage());
     }
 
     @ExceptionHandler
