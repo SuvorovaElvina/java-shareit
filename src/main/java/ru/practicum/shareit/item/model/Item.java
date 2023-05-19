@@ -6,7 +6,6 @@ import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "items")
@@ -24,11 +23,9 @@ public class Item {
     User owner;
 
     @Column(nullable = false)
-    @NotBlank(message = "Имя не должно быть пустым.")
     String name;
 
     @Column(nullable = false)
-    @NotBlank(message = "Описание не должно быть пустым.")
     String description;
 
     @Column(name = "is_available")
