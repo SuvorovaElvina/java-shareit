@@ -19,7 +19,7 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     User owner;
 
     @Column(nullable = false)

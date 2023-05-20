@@ -32,7 +32,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") long userId) { //--> написать отдельный запрос на комнановку с каждым объектом. Разобраться с транзакциями
+    public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") long userId) {
         return service.getAll(userId);
     }
 
