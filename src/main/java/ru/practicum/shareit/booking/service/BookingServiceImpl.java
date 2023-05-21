@@ -6,12 +6,12 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.booking.status.Status;
 import ru.practicum.shareit.exception.IncorrectCountException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.UnknownStateException;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.service.UserService;
-import ru.practicum.shareit.booking.status.Status;
 
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
@@ -90,16 +90,16 @@ public class BookingServiceImpl implements BookingService {
                 bookings = repository.findByBookerIdAndStatusInOrderByStartDesc(bookerId, Set.of(Status.WAITING, Status.APPROVED));
                 break;
             case "REJECTED":
-                bookings = repository.findByBookerIdAndStatusOrderByStartDesc(bookerId, Status.REJECTED);
+                bookings = repository.findByBookerIdAndStatusIsOrderByStartDesc(bookerId, Status.REJECTED);
                 break;
             case "WAITING":
-                bookings = repository.findByBookerIdAndStatusOrderByStartDesc(bookerId, Status.WAITING);
+                bookings = repository.findByBookerIdAndStatusIsOrderByStartDesc(bookerId, Status.WAITING);
                 break;
             case "CURRENT":
-                bookings = repository.findByBookerIdAndStatusOrderByStartDesc(bookerId, Status.APPROVED);
+                bookings = repository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId, LocalDateTime.now(), LocalDateTime.now());
                 break;
             case "PAST":
-                bookings = repository.findByBookerIdAndEndIsBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
+                bookings = repository.findByBookerIdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
                 break;
             default:
                 throw new UnknownStateException("Unknown state: " + state);
@@ -128,10 +128,10 @@ public class BookingServiceImpl implements BookingService {
                 bookings = repository.findByOwnerIdAndStatus(ownerId, Status.WAITING);
                 break;
             case "CURRENT":
-                bookings = repository.findByOwnerIdAndStatus(ownerId, Status.APPROVED);
+                bookings = repository.findByOwnerIdCurrent(ownerId, LocalDateTime.now());
                 break;
             case "PAST":
-                bookings = repository.findByOwnerIdAndEndIsBefore(ownerId, LocalDateTime.now());
+                bookings = repository.findByOwnerIdPast(ownerId, LocalDateTime.now());
                 break;
             default:
                 throw new UnknownStateException("Unknown state: " + state);
