@@ -14,13 +14,10 @@ import java.util.Set;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    @Transactional
     Optional<List<Booking>> findByItemIdAndBookerIdAndEndBeforeAndStatusNotLike(Long itemId, Long bookerId, LocalDateTime time, Status status);
 
-    @Transactional
     Optional<Booking> findFirst1ByItemIdAndStartBeforeOrderByStartDesc(Long itemId, LocalDateTime time);
 
-    @Transactional
     Optional<Booking> findFirst1ByItemIdAndStartAfterAndStatusNotLikeOrderByStartAsc(Long itemId, LocalDateTime time, Status status);
 
     List<Booking> findByBookerIdAndStatusInOrderByStartDesc(Long bookerId, Set<Status> states);
