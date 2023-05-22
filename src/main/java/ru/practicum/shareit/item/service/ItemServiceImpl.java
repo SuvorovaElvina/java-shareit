@@ -70,12 +70,10 @@ public class ItemServiceImpl implements ItemService {
             bookingRepository.findFirst1ByItemIdAndStartAfterAndStatusNotLikeOrderByStartAsc(id, LocalDateTime.now(), Status.REJECTED)
                     .ifPresent(booking -> itemDto.setNextBooking(bookingMapper.toItemsBookingDto(booking)));
         }
-        if (commentRepository.findAllByItemId(item.getId()).isPresent()) {
-            itemDto.setComments(commentRepository.findAllByItemId(item.getId()).get()
-                    .stream()
-                    .map(commentMapper::toCommentDto)
-                    .collect(toList()));
-        }
+        itemDto.setComments(commentRepository.findAllByItemId(item.getId()).orElse(List.of())
+                .stream()
+                .map(commentMapper::toCommentDto)
+                .collect(toList()));
         return itemDto;
     }
 
@@ -89,6 +87,10 @@ public class ItemServiceImpl implements ItemService {
                     .ifPresent(booking -> itemDto.setLastBooking(bookingMapper.toItemsBookingDto(booking)));
             bookingRepository.findFirst1ByItemIdAndStartAfterAndStatusNotLikeOrderByStartAsc(item.getId(), LocalDateTime.now(), Status.REJECTED)
                     .ifPresent(booking -> itemDto.setNextBooking(bookingMapper.toItemsBookingDto(booking)));
+            itemDto.setComments(commentRepository.findAllByItemId(item.getId()).orElse(List.of())
+                    .stream()
+                    .map(commentMapper::toCommentDto)
+                    .collect(toList()));
             itemsDto.add(itemDto);
         }
         return itemsDto;
