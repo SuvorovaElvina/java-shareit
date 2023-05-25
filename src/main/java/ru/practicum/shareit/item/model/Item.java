@@ -1,24 +1,36 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-import javax.validation.constraints.NotBlank;
+import javax.persistence.*;
 
+@Entity
+@Table(name = "items")
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Item {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
+
+    @OneToOne
     User owner;
-    @NotBlank(message = "Имя не должно быть пустым.")
+
+    @Column(nullable = false)
     String name;
-    @NotBlank(message = "Описание не должно быть пустым.")
+
+    @Column(nullable = false)
     String description;
+
+    @Column(name = "is_available")
     boolean available;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     ItemRequest request;
 }

@@ -4,15 +4,18 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.ArrayList;
+
 @Component
 public class ItemMapper {
-    public ItemDto toItemDto(Item item) {
+    public ItemDto toSimpleItemDto(Item item) {
         return ItemDto.builder()
                 .id(item.getId())
+                .owner(item.getOwner())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.isAvailable())
-                .request(item.getRequest() != null ? item.getRequest().getId() : null)
+                .comments(new ArrayList<>())
                 .build();
     }
 
