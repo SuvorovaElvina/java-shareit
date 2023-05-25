@@ -48,18 +48,16 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto update(long userId, long bookingId, String approved) {
+    public BookingDto update(long userId, long bookingId, boolean approved) {
         Booking booking = getBooking(bookingId);
         if (booking.getItem().getOwner().getId() == userId) {
             if (booking.getStatus().equals(Status.APPROVED) || booking.getStatus().equals(Status.REJECTED)) {
                 throw new ValidationException("Вы уже подвертили или отказали бронирование. Повторное действие не возможно.");
             }
-            if (approved.equals("true")) {
+            if (approved) {
                 booking.setStatus(Status.APPROVED);
-            } else if (approved.equals("false")) {
-                booking.setStatus(Status.REJECTED);
             } else {
-                throw new ValidationException("approved может быть только true или false.");
+                booking.setStatus(Status.REJECTED);
             }
             repository.save(booking);
             return mapper.toBookingDto(booking);
