@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -77,27 +80,82 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllByUser(long bookerId, String state) {
+    public List<BookingDto> getAllByUser(long bookerId, String state, int from, int size) {
         userService.getById(bookerId);
-        List<Booking> bookings;
+        if (from < 0 || size <= 0) {
+            throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
+        }
+        Page<Booking> bookings;
         switch (state) {
             case "ALL":
-                bookings = repository.findByBookerIdOrderByStartDesc(bookerId);
+                bookings = repository.findByBookerId(bookerId, PageRequest.of(from, size, Sort.by("start").descending()));
+                while (bookings.isEmpty()) {
+                    if (from == 0) {
+                        break;
+                    }
+                    from -= 1;
+                    bookings = repository.findByBookerId(bookerId, PageRequest.of(from, size, Sort.by("start").descending()));
+                }
                 break;
             case "FUTURE":
-                bookings = repository.findByBookerIdAndStatusInOrderByStartDesc(bookerId, Set.of(Status.WAITING, Status.APPROVED));
+                bookings = repository.findByBookerIdAndStatusIn(bookerId, Set.of(Status.WAITING, Status.APPROVED),
+                        PageRequest.of(from, size, Sort.by("start").descending()));
+                while (bookings.isEmpty()) {
+                    if (from == 0) {
+                        break;
+                    }
+                    from -= 1;
+                    bookings = repository.findByBookerIdAndStatusIn(bookerId, Set.of(Status.WAITING, Status.APPROVED),
+                            PageRequest.of(from, size, Sort.by("start").descending()));
+                }
                 break;
             case "REJECTED":
-                bookings = repository.findByBookerIdAndStatusIsOrderByStartDesc(bookerId, Status.REJECTED);
+                bookings = repository.findByBookerIdAndStatusIs(bookerId, Status.REJECTED,
+                        PageRequest.of(from, size, Sort.by("start").descending()));
+                while (bookings.isEmpty()) {
+                    if (from == 0) {
+                        break;
+                    }
+                    from -= 1;
+                    bookings = repository.findByBookerIdAndStatusIs(bookerId, Status.REJECTED,
+                            PageRequest.of(from, size, Sort.by("start").descending()));
+                }
                 break;
             case "WAITING":
-                bookings = repository.findByBookerIdAndStatusIsOrderByStartDesc(bookerId, Status.WAITING);
+                bookings = repository.findByBookerIdAndStatusIs(bookerId, Status.WAITING,
+                        PageRequest.of(from, size, Sort.by("start").descending()));
+                while (bookings.isEmpty()) {
+                    if (from == 0) {
+                        break;
+                    }
+                    from -= 1;
+                    bookings = repository.findByBookerIdAndStatusIs(bookerId, Status.WAITING,
+                            PageRequest.of(from, size, Sort.by("start").descending()));
+                }
                 break;
             case "CURRENT":
-                bookings = repository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId, LocalDateTime.now(), LocalDateTime.now());
+                bookings = repository.findByBookerIdAndStartBeforeAndEndAfter(bookerId, LocalDateTime.now(),
+                        LocalDateTime.now(), PageRequest.of(from, size, Sort.by("start").descending()));
+                while (bookings.isEmpty()) {
+                    if (from == 0) {
+                        break;
+                    }
+                    from -= 1;
+                    bookings = repository.findByBookerIdAndStartBeforeAndEndAfter(bookerId, LocalDateTime.now(),
+                            LocalDateTime.now(), PageRequest.of(from, size, Sort.by("start").descending()));
+                }
                 break;
             case "PAST":
-                bookings = repository.findByBookerIdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
+                bookings = repository.findByBookerIdAndEndBefore(bookerId, LocalDateTime.now(),
+                        PageRequest.of(from, size, Sort.by("start").descending()));
+                while (bookings.isEmpty()) {
+                    if (from == 0) {
+                        break;
+                    }
+                    from -= 1;
+                    bookings = repository.findByBookerIdAndEndBefore(bookerId, LocalDateTime.now(),
+                            PageRequest.of(from, size, Sort.by("start").descending()));
+                }
                 break;
             default:
                 throw new UnknownStateException("Unknown state: " + state);
@@ -109,27 +167,82 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllByOwner(long ownerId, String state) {
+    public List<BookingDto> getAllByOwner(long ownerId, String state, int from, int size) {
         userService.getById(ownerId);
-        List<Booking> bookings;
+        if (from < 0 || size <= 0) {
+            throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
+        }
+        Page<Booking> bookings;
         switch (state) {
             case "ALL":
-                bookings = repository.findByOwnerId(ownerId);
+                bookings = repository.findByOwnerId(ownerId, PageRequest.of(from, size, Sort.by("start").descending()));
+                while (bookings.isEmpty()) {
+                    if (from == 0) {
+                        break;
+                    }
+                    from -= 1;
+                    bookings = repository.findByOwnerId(ownerId, PageRequest.of(from, size, Sort.by("start").descending()));
+                }
                 break;
             case "FUTURE":
-                bookings = repository.findByOwnerIdAndStatusIn(ownerId, Set.of(Status.WAITING, Status.APPROVED));
+                bookings = repository.findByOwnerIdAndStatusIn(ownerId, Set.of(Status.WAITING, Status.APPROVED),
+                        PageRequest.of(from, size, Sort.by("start").descending()));
+                while (bookings.isEmpty()) {
+                    if (from == 0) {
+                        break;
+                    }
+                    from -= 1;
+                    bookings = repository.findByOwnerIdAndStatusIn(ownerId, Set.of(Status.WAITING, Status.APPROVED),
+                            PageRequest.of(from, size, Sort.by("start").descending()));
+                }
                 break;
             case "REJECTED":
-                bookings = repository.findByOwnerIdAndStatus(ownerId, Status.REJECTED);
+                bookings = repository.findByOwnerIdAndStatus(ownerId, Status.REJECTED,
+                        PageRequest.of(from, size, Sort.by("start").descending()));
+                while (bookings.isEmpty()) {
+                    if (from == 0) {
+                        break;
+                    }
+                    from -= 1;
+                    bookings = repository.findByOwnerIdAndStatus(ownerId, Status.REJECTED,
+                            PageRequest.of(from, size, Sort.by("start").descending()));
+                }
                 break;
             case "WAITING":
-                bookings = repository.findByOwnerIdAndStatus(ownerId, Status.WAITING);
+                bookings = repository.findByOwnerIdAndStatus(ownerId, Status.WAITING,
+                        PageRequest.of(from, size, Sort.by("start").descending()));
+                while (bookings.isEmpty()) {
+                    if (from == 0) {
+                        break;
+                    }
+                    from -= 1;
+                    bookings = repository.findByOwnerIdAndStatus(ownerId, Status.WAITING,
+                            PageRequest.of(from, size, Sort.by("start").descending()));
+                }
                 break;
             case "CURRENT":
-                bookings = repository.findByOwnerIdCurrent(ownerId, LocalDateTime.now());
+                bookings = repository.findByOwnerIdCurrent(ownerId, LocalDateTime.now(),
+                        PageRequest.of(from, size, Sort.by("start").descending()));
+                while (bookings.isEmpty()) {
+                    if (from == 0) {
+                        break;
+                    }
+                    from -= 1;
+                    bookings = repository.findByOwnerIdCurrent(ownerId, LocalDateTime.now(),
+                            PageRequest.of(from, size, Sort.by("start").descending()));
+                }
                 break;
             case "PAST":
-                bookings = repository.findByOwnerIdPast(ownerId, LocalDateTime.now());
+                bookings = repository.findByOwnerIdPast(ownerId, LocalDateTime.now(),
+                        PageRequest.of(from, size, Sort.by("start").descending()));
+                while (bookings.isEmpty()) {
+                    if (from == 0) {
+                        break;
+                    }
+                    from -= 1;
+                    bookings = repository.findByOwnerIdPast(ownerId, LocalDateTime.now(),
+                            PageRequest.of(from, size, Sort.by("start").descending()));
+                }
                 break;
             default:
                 throw new UnknownStateException("Unknown state: " + state);
