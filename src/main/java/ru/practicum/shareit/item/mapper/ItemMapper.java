@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 @Component
 public class ItemMapper {
-    public ItemDto toSimpleItemDto(Item item) {
+    public ItemDto toItemDto(Item item) {
         return ItemDto.builder()
                 .id(item.getId())
                 .owner(item.getOwner())
@@ -16,6 +16,7 @@ public class ItemMapper {
                 .description(item.getDescription())
                 .available(item.isAvailable())
                 .comments(new ArrayList<>())
+                .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
                 .build();
     }
 

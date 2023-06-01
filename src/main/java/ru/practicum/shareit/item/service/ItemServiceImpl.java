@@ -1,6 +1,9 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -16,6 +19,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -31,6 +35,7 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final UserService service;
+    private final ItemRequestService requestService;
     private final ItemRepository repository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
@@ -42,7 +47,11 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto add(long id, ItemDto itemDto) {
         Item item = mapper.toItem(itemDto);
         item.setOwner(service.getById(id));
-        return mapper.toSimpleItemDto(repository.save(item));
+        if (Optional.ofNullable(itemDto.getRequestId()).isPresent()) {
+            item.setRequest(requestService.reply(itemDto.getRequestId()));
+        }
+        Item item1 = repository.save(item);
+        return mapper.toItemDto(item1);
     }
 
     @Override
@@ -54,7 +63,7 @@ public class ItemServiceImpl implements ItemService {
             updateDescription(item, itemDto);
             updateAvailable(item, itemDto);
             repository.save(item);
-            return mapper.toSimpleItemDto(item);
+            return mapper.toItemDto(item);
         } else {
             throw new NotFoundException(String.format("Вы не являетесь владельцем вещи под номером %d", itemId));
         }
@@ -63,7 +72,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto getById(long id, long userId) {
         Item item = getItem(id);
-        ItemDto itemDto = mapper.toSimpleItemDto(item);
+        ItemDto itemDto = mapper.toItemDto(item);
         if (item.getOwner().getId().equals(userId)) {
             bookingRepository.findFirst1ByItemIdAndStartBeforeOrderByStartDesc(id, LocalDateTime.now())
                     .ifPresent(booking -> itemDto.setLastBooking(bookingMapper.toItemsBookingDto(booking)));
@@ -78,31 +87,55 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAll(long userId) {
-        List<Item> items = repository.findByOwnerIdOrderByIdAsc(userId);
+    public List<ItemDto> getAll(long userId, int from, int size) {
+        if (from < 0 || size <= 0) {
+            throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
+        }
+        Page<Item> items = repository.findByOwnerId(userId, PageRequest.of(from, size, Sort.by("id").ascending()));
+        while (items.isEmpty()) {
+            if (from == 0) {
+                break;
+            }
+            from -= 1;
+            items = repository.findByOwnerId(userId, PageRequest.of(from, size, Sort.by("id").ascending()));
+        }
         List<ItemDto> itemsDto = new ArrayList<>();
         for (Item item : items) {
-            ItemDto itemDto = mapper.toSimpleItemDto(item);
+            ItemDto itemDto = mapper.toItemDto(item);
+
             bookingRepository.findFirst1ByItemIdAndStartBeforeOrderByStartDesc(item.getId(), LocalDateTime.now())
                     .ifPresent(booking -> itemDto.setLastBooking(bookingMapper.toItemsBookingDto(booking)));
             bookingRepository.findFirst1ByItemIdAndStartAfterAndStatusNotLikeOrderByStartAsc(item.getId(), LocalDateTime.now(), Status.REJECTED)
                     .ifPresent(booking -> itemDto.setNextBooking(bookingMapper.toItemsBookingDto(booking)));
+
             itemDto.setComments(commentRepository.findAllByItemId(item.getId()).orElse(List.of())
                     .stream()
                     .map(commentMapper::toCommentDto)
                     .collect(toList()));
+
             itemsDto.add(itemDto);
         }
         return itemsDto;
     }
 
     @Override
-    public List<ItemDto> searchText(long userId, String text) {
+    public List<ItemDto> searchText(long userId, String text, int from, int size) {
         if (text.isBlank()) {
             return new ArrayList<>();
         } else {
-            return repository.search(text).stream()
-                    .map(mapper::toSimpleItemDto)
+            if (from < 0 || size <= 0) {
+                throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
+            }
+            Page<Item> items = repository.search(text, PageRequest.of(from, size));
+            while (items.isEmpty()) {
+                if (from == 0) {
+                    break;
+                }
+                from -= 1;
+                items = repository.search(text, PageRequest.of(from, size));
+            }
+            return items.stream()
+                    .map(mapper::toItemDto)
                     .collect(toList());
         }
     }
@@ -135,31 +168,24 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void updateName(Item item, ItemDto itemDto) {
-        try {
+        if (Optional.ofNullable(itemDto.getName()).isPresent()) {
             if (!itemDto.getName().isBlank()) {
                 item.setName(itemDto.getName());
             }
-        } catch (NullPointerException e) {
-            return;
         }
     }
 
     private void updateDescription(Item item, ItemDto itemDto) {
-        try {
+        if (Optional.ofNullable(itemDto.getDescription()).isPresent()) {
             if (!itemDto.getDescription().isBlank()) {
                 item.setDescription(itemDto.getDescription());
             }
-        } catch (NullPointerException e) {
-            return;
         }
     }
 
     private void updateAvailable(Item item, ItemDto itemDto) {
-        try {
-            itemDto.getAvailable().toString();
+        if (Optional.ofNullable(itemDto.getAvailable()).isPresent()) {
             item.setAvailable(itemDto.getAvailable());
-        } catch (NullPointerException e) {
-            return;
         }
     }
 }

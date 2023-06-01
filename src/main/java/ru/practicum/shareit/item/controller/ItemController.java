@@ -23,12 +23,16 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId, @Valid @RequestBody CommentDto commentDto) {
+    public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") long userId,
+                                    @PathVariable long itemId,
+                                    @Valid @RequestBody CommentDto commentDto) {
         return service.addComment(userId, itemId, commentDto);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId, @RequestBody ItemDto itemDto) {
+    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
+                              @PathVariable long itemId,
+                              @RequestBody ItemDto itemDto) {
         return service.update(userId, itemId, itemDto);
     }
 
@@ -38,12 +42,17 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") long userId) {
-        return service.getAll(userId);
+    public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") long userId,
+                                  @RequestParam(defaultValue = "0") int from,
+                                  @RequestParam(defaultValue = "10") int size) {
+        return service.getAll(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItems(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam String text) {
-        return service.searchText(userId, text);
+    public List<ItemDto> searchItems(@RequestHeader("X-Sharer-User-Id") long userId,
+                                     @RequestParam String text,
+                                     @RequestParam(defaultValue = "0") int from,
+                                     @RequestParam(defaultValue = "10") int size) {
+        return service.searchText(userId, text, from, size);
     }
 }

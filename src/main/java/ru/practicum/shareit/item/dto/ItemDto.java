@@ -24,8 +24,8 @@ public class ItemDto {
     String description;
     @NotNull
     Boolean available;
-    Long request;
     ItemsBookingDto lastBooking;
     ItemsBookingDto nextBooking;
     List<CommentDto> comments;
+    Long requestId;
 }
