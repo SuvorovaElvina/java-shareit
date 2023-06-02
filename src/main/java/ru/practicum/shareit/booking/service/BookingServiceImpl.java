@@ -39,7 +39,7 @@ public class BookingServiceImpl implements BookingService {
         if (booking.getItem().isAvailable()) {
             if (booking.getItem().getOwner().getId() != userId) {
                 validateTime(booking.getStart(), booking.getEnd());
-                booking.setBooker(userService.getById(userId));
+                booking.setBooker(userService.getUser(userId));
                 booking.setStatus(Status.WAITING);
                 return mapper.toBookingDto(repository.save(booking));
             } else {

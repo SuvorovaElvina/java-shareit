@@ -19,30 +19,25 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService service;
-    private final UserMapper mapper;
 
     @PostMapping
     public UserDto createUser(@Valid @RequestBody UserDto userDto) {
-        User user = mapper.toUser(userDto);
-        return mapper.toUserDto(service.add(user));
+        return service.add(userDto);
     }
 
     @PatchMapping("/{userId}")
     public UserDto updateUser(@PathVariable("userId") long id, @RequestBody UserDto userDto) {
-        return mapper.toUserDto(service.update(id, userDto));
+        return service.update(id, userDto);
     }
 
     @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable("userId") long id) {
-        return mapper.toUserDto(service.getById(id));
+        return service.getById(id);
     }
 
     @GetMapping
     public List<UserDto> getUsers() {
-        return service.getAll()
-                .stream()
-                .map(mapper::toUserDto)
-                .collect(toList());
+        return service.getAll();
     }
 
     @DeleteMapping("/{userId}")

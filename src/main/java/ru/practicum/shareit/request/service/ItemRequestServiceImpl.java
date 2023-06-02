@@ -32,7 +32,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public ItemRequestDto add(long userId, ItemRequestDto itemRequestDto) {
         ItemRequest itemRequest = mapper.toItemRequest(itemRequestDto);
-        itemRequest.setOwner(userService.getById(userId));
+        itemRequest.setOwner(userService.getUser(userId));
         itemRequest.setCreated(LocalDateTime.now());
         return mapper.toItemRequestDto(repository.save(itemRequest));
     }

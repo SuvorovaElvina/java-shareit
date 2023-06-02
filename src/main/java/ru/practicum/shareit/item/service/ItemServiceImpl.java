@@ -46,7 +46,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto add(long id, ItemDto itemDto) {
         Item item = mapper.toItem(itemDto);
-        item.setOwner(service.getById(id));
+        item.setOwner(service.getUser(id));
         if (Optional.ofNullable(itemDto.getRequestId()).isPresent()) {
             item.setRequest(requestService.reply(itemDto.getRequestId()));
         }
@@ -56,7 +56,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto update(long userId, long itemId, ItemDto itemDto) {
-        User user = service.getById(userId);
+        User user = service.getUser(userId);
         Item item = getItem(itemId);
         if (item.getOwner().getId().equals(user.getId())) {
             updateName(item, itemDto);
@@ -146,7 +146,7 @@ public class ItemServiceImpl implements ItemService {
                 bookingRepository.findByItemIdAndBookerIdAndEndBeforeAndStatusNotLike(itemId, userId, LocalDateTime.now(), Status.REJECTED);
         if (bookings.isPresent() && !bookings.get().isEmpty()) {
             Comment comment = commentMapper.toComment(service
-                    .getById(userId), getItem(itemId), commentDto, LocalDateTime.now());
+                    .getUser(userId), getItem(itemId), commentDto, LocalDateTime.now());
             return commentMapper.toCommentDto(commentRepository.save(comment));
         } else {
             throw new ValidationException("Вы не бронировали эту вещь или срок бронирвания ещё не истёк.");
