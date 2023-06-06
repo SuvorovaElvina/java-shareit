@@ -23,41 +23,39 @@ class ItemRequestRepositoryTest {
 
     @Test
     void findByOwnerId() {
-        User user = User.builder().id(1L).name("name").email("user@mail").build();
+        User user = User.builder().id(16L).name("name").email("user@mail").build();
         ItemRequest request = ItemRequest.builder().id(4L).owner(user).description("desc").build();
 
         userRepository.save(user);
         repository.save(request);
 
-        List<ItemRequest> requests = repository.findByOwnerId(1L, PageRequest.of(0, 1)).stream().collect(toList());
+        List<ItemRequest> requests = repository.findByOwnerId(16L, PageRequest.of(0, 1)).stream().collect(toList());
 
         assertEquals(1 ,requests.size(), "Не даёт нужный результат");
     }
 
     @Test
     void findByOwnerIdNotWithOwnerId_ListEmpty() {
-        User user = User.builder().id(1L).name("name").email("user@mail").build();
+        User user = User.builder().id(14L).name("name").email("user@mail").build();
         ItemRequest request = ItemRequest.builder().id(4L).owner(user).description("desc").build();
 
         userRepository.save(user);
         repository.save(request);
 
-        List<ItemRequest> requests = repository.findByOwnerIdNot(1L, PageRequest.of(0, 1)).stream().collect(toList());
+        List<ItemRequest> requests = repository.findByOwnerIdNot(14L, PageRequest.of(0, 1)).stream().collect(toList());
 
         assertEquals(0 ,requests.size(), "Выводит не то что нужно");
     }
 
     @Test
     void findByOwnerIdNot() {
-        User user = User.builder().id(1L).name("name").email("user@mail").build();
-        User user1 = User.builder().id(1L).name("name").email("user@mail").build();
-        ItemRequest request = ItemRequest.builder().id(4L).owner(user1).description("desc").build();
+        User user = User.builder().id(15L).name("name").email("user@mail").build();
+        ItemRequest request = ItemRequest.builder().id(4L).owner(user).description("desc").build();
 
         userRepository.save(user);
-        userRepository.save(user1);
         repository.save(request);
 
-        List<ItemRequest> requests = repository.findByOwnerIdNot(2L, PageRequest.of(0, 1)).stream().collect(toList());
+        List<ItemRequest> requests = repository.findByOwnerIdNot(16L, PageRequest.of(0, 1)).stream().collect(toList());
 
         assertEquals(1 ,requests.size(), "Выводит не то что нужно");
     }
