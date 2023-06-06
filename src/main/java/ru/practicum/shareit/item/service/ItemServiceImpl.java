@@ -91,14 +91,8 @@ public class ItemServiceImpl implements ItemService {
         if (from < 0 || size <= 0) {
             throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
         }
-        Page<Item> items = repository.findByOwnerId(userId, PageRequest.of(from, size, Sort.by("id").ascending()));
-        while (items.isEmpty()) {
-            if (from == 0) {
-                break;
-            }
-            from -= 1;
-            items = repository.findByOwnerId(userId, PageRequest.of(from, size, Sort.by("id").ascending()));
-        }
+        int pageNumber = (int) Math.ceil((double) from / size);
+        Page<Item> items = repository.findByOwnerId(userId, PageRequest.of(pageNumber, size, Sort.by("id").ascending()));
         List<ItemDto> itemsDto = new ArrayList<>();
         for (Item item : items) {
             ItemDto itemDto = mapper.toItemDto(item);
@@ -126,14 +120,8 @@ public class ItemServiceImpl implements ItemService {
             if (from < 0 || size <= 0) {
                 throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
             }
-            Page<Item> items = repository.search(text, PageRequest.of(from, size));
-            while (items.isEmpty()) {
-                if (from == 0) {
-                    break;
-                }
-                from -= 1;
-                items = repository.search(text, PageRequest.of(from, size));
-            }
+            int pageNumber = (int) Math.ceil((double) from / size);
+            Page<Item> items = repository.search(text, PageRequest.of(pageNumber, size));
             return items.stream()
                     .map(mapper::toItemDto)
                     .collect(toList());

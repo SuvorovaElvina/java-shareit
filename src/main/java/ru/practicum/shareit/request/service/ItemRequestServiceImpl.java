@@ -51,14 +51,11 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getAllByUser(long userId, int from, int size) {
         userService.getById(userId);
-        Page<ItemRequest> requests = repository.findByOwnerId(userId, PageRequest.of(from, size, Sort.by("created")));
-        while (requests.isEmpty()) {
-            if (from == 0) {
-                break;
-            }
-            from -= 1;
-            requests = repository.findByOwnerId(userId, PageRequest.of(from, size, Sort.by("created")));
+        if (from < 0 || size <= 0) {
+            throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
         }
+        int pageNumber = (int) Math.ceil((double) from / size);
+        Page<ItemRequest> requests = repository.findByOwnerId(userId, PageRequest.of(pageNumber, size, Sort.by("created")));
         List<ItemRequestDto> requestsDto = requests.stream()
                 .map(mapper::toItemRequestDto)
                 .collect(Collectors.toList());
@@ -77,14 +74,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         if (from < 0 || size <= 0) {
             throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
         }
-        Page<ItemRequest> requests = repository.findByOwnerIdNot(userId, PageRequest.of(from, size, Sort.by("created").descending()));
-        while (requests.isEmpty()) {
-            if (from == 0) {
-                break;
-            }
-            from -= 1;
-            requests = repository.findByOwnerIdNot(userId, PageRequest.of(from, size, Sort.by("created").descending()));
-        }
+        int pageNumber = (int) Math.ceil((double) from / size);
+        Page<ItemRequest> requests = repository.findByOwnerIdNot(userId, PageRequest.of(pageNumber, size, Sort.by("created").descending()));
         List<ItemRequestDto> requestsDto = requests.stream()
                 .map(mapper::toItemRequestDto)
                 .collect(Collectors.toList());
