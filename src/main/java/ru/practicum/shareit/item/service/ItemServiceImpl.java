@@ -50,8 +50,7 @@ public class ItemServiceImpl implements ItemService {
         if (Optional.ofNullable(itemDto.getRequestId()).isPresent()) {
             item.setRequest(requestService.reply(itemDto.getRequestId()));
         }
-        Item item1 = repository.save(item);
-        return mapper.toItemDto(item1);
+        return mapper.toItemDto(repository.save(item));
     }
 
     @Override

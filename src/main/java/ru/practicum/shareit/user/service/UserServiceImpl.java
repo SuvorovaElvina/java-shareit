@@ -31,12 +31,13 @@ public class UserServiceImpl implements UserService {
         User user = getUser(id);
         updateName(user, userDto);
         updateEmail(user, userDto);
-        return mapper.toUserDto(repository.save(user));
+        repository.save(user);
+        return mapper.toUserDto(user);
     }
 
     @Override
     public UserDto getById(long id) {
-            return mapper.toUserDto(getUser(id));
+        return mapper.toUserDto(getUser(id));
     }
 
     @Override
