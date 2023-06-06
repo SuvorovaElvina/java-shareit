@@ -31,7 +31,7 @@ class ItemRequestRepositoryTest {
 
         List<ItemRequest> requests = repository.findByOwnerId(16L, PageRequest.of(0, 1)).stream().collect(toList());
 
-        assertEquals(1 ,requests.size(), "Не даёт нужный результат");
+        assertEquals(1, requests.size(), "Не даёт нужный результат");
     }
 
     @Test
@@ -44,7 +44,7 @@ class ItemRequestRepositoryTest {
 
         List<ItemRequest> requests = repository.findByOwnerIdNot(14L, PageRequest.of(0, 1)).stream().collect(toList());
 
-        assertEquals(0 ,requests.size(), "Выводит не то что нужно");
+        assertEquals(0, requests.size(), "Выводит не то что нужно");
     }
 
     @Test
@@ -57,6 +57,6 @@ class ItemRequestRepositoryTest {
 
         List<ItemRequest> requests = repository.findByOwnerIdNot(16L, PageRequest.of(0, 1)).stream().collect(toList());
 
-        assertEquals(1 ,requests.size(), "Выводит не то что нужно");
+        assertEquals(1, requests.size(), "Выводит не то что нужно");
     }
 }
