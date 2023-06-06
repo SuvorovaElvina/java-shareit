@@ -1,21 +1,27 @@
 package ru.practicum.shareit.request;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.reposiroty.ItemRequestRepository;
 import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.request.service.ItemRequestServiceImpl;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -27,9 +33,9 @@ class ItemRequestServiceImplTest {
 
     private final ItemRepository itemRepository = mock(ItemRepository.class);
 
-    private final ItemRequestMapper mapper = mock(ItemRequestMapper.class);
+    private final ItemRequestMapper mapper = new ItemRequestMapper();
 
-    private final ItemMapper itemMapper = mock(ItemMapper.class);
+    private final ItemMapper itemMapper = new ItemMapper();
 
     private final ItemRequestService service =
             new ItemRequestServiceImpl(userService, repository, itemRepository, mapper, itemMapper);
@@ -115,4 +121,73 @@ class ItemRequestServiceImplTest {
         assertEquals(itemRequest.getDescription(), request.getDescription(), "Не возвращает description");
     }
 
+    @Test
+    void getByIdWithItemsEmptyAndMapper() {
+        when(userService.getById(anyLong()))
+                .thenReturn(UserDto.builder().id(1L).email("user@mail").name("name").build());
+        ItemRequest request = ItemRequest.builder()
+                .id(1L)
+                .created(LocalDateTime.now())
+                .description("desc")
+                .build();
+        when(repository.findById(anyLong()))
+                .thenReturn(Optional.of(request));
+        when(itemRepository.findByRequestIdOrderByIdAsc(anyLong()))
+                .thenReturn(List.of());
+
+        ItemRequestDto requestDto = service.getById(1, 1);
+
+        assertNotNull(requestDto, "null не возвращает dto");
+        assertEquals(request.getDescription(), requestDto.getDescription(), "не возвращает desc");
+        assertEquals(request.getId(), requestDto.getId(), "не возвращает id");
+        assertEquals(0, requestDto.getItems().size(), "не возвращает пустой список items");
+    }
+
+    @Test
+    void getByIdWithItemsAndMapper() {
+        when(userService.getById(anyLong()))
+                .thenReturn(UserDto.builder().id(1L).email("user@mail").name("name").build());
+        ItemRequest request = ItemRequest.builder()
+                .id(1L)
+                .created(LocalDateTime.now())
+                .description("desc")
+                .build();
+        when(repository.findById(anyLong()))
+                .thenReturn(Optional.of(request));
+        when(itemRepository.findByRequestIdOrderByIdAsc(anyLong()))
+                .thenReturn(List.of(Item.builder().id(1L).build()));
+
+        ItemRequestDto requestDto = service.getById(1, 1);
+
+        assertNotNull(requestDto, "null не возвращает dto");
+        assertEquals(request.getDescription(), requestDto.getDescription(), "не возвращает desc");
+        assertEquals(request.getId(), requestDto.getId(), "не возвращает id");
+        assertEquals(1, requestDto.getItems().size(), "не возвращает список items с 1");
+    }
+
+    @Test
+    void getAllEmpty() {
+        when(userService.getById(anyLong()))
+                .thenReturn(UserDto.builder().id(1L).email("user@mail").name("name").build());
+        when(repository.findByOwnerIdNot(anyLong(), any()))
+                .thenReturn(Page.empty());
+
+        List<ItemRequestDto> requests = service.getAll(1, 0, 1);
+
+        assertNotNull(requests, "null не возвращает список");
+        assertEquals(0, requests.size(), "не пустой список");
+    }
+
+    @Test
+    void getAllByUserEmpty() {
+        when(userService.getById(anyLong()))
+                .thenReturn(UserDto.builder().id(1L).email("user@mail").name("name").build());
+        when(repository.findByOwnerId(anyLong(), any()))
+                .thenReturn(Page.empty());
+
+        List<ItemRequestDto> requests = service.getAllByUser(1, 0, 1);
+
+        assertNotNull(requests, "null не возвращает список");
+        assertEquals(0, requests.size(), "не пустой список");
+    }
 }

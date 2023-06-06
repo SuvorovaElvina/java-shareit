@@ -10,6 +10,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -151,5 +152,42 @@ class UserServiceImplTest {
         assertNotNull(userDto, "null при получении (посмотреть маппер)");
         assertEquals(userRepository.getName(), userDto.getName(), "Изменяется имя, хотя не должно");
         assertEquals(update.getEmail(), userDto.getEmail(), "Не изменяется почта");
+    }
+
+    @Test
+    void getAllEmpty() {
+        when(repository.findAll()).thenReturn(List.of());
+        List<UserDto> users = service.getAll();
+
+        assertNotNull(users, "null при получении");
+        assertEquals(0, users.size(), "Не пустой список при не добовлении");
+    }
+
+    @Test
+    void getAllWithMapper() {
+        UserDto user = UserDto.builder().id(1L).email("user@mail").name("name").build();
+        when(repository.findAll()).thenReturn(List.of(User.builder().id(1L).email("user@mail").name("name").build()));
+        List<UserDto> users = service.getAll();
+
+        assertNotNull(users, "null при получении");
+        assertEquals(user, users.get(0), "Не пустой список при не добовлении");
+    }
+
+    @Test
+    void addNewUserWithMapper() {
+        UserDto userDto = UserDto.builder().name("name").email("user@mail").build();
+        when(repository.save(any())).thenReturn(User.builder().id(1L).name("name").email("user@mail").build());
+        UserDto userDtoNew = service.add(userDto);
+
+        assertNotNull(userDtoNew, "null при получении");
+        assertEquals(1, userDtoNew.getId(), "Не возвращает при добавлении id");
+        assertEquals(userDto.getName(), userDtoNew.getName(), "Не возвращает при добавлении name");
+        assertEquals(userDto.getEmail(), userDtoNew.getEmail(), "Не возвращает при добавлении email");
+    }
+
+    @Test
+    void deleteUser() {
+        when(repository.findById(anyLong())).thenReturn(Optional.of(User.builder().build()));
+        service.delete(1);
     }
 }
