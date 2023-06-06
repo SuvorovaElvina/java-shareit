@@ -2,6 +2,7 @@ package ru.practicum.shareit.request;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -189,5 +190,45 @@ class ItemRequestServiceImplTest {
 
         assertNotNull(requests, "null не возвращает список");
         assertEquals(0, requests.size(), "не пустой список");
+    }
+
+    @Test
+    void getAllByUser() {
+        LocalDateTime time = LocalDateTime.now();
+        ItemRequestDto requestDto = ItemRequestDto.builder().id(1L).description("desc")
+                .created(time).items(List.of()).build();
+        when(userService.getById(anyLong()))
+                .thenReturn(UserDto.builder().id(1L).email("user@mail").name("name").build());
+        when(repository.findByOwnerId(anyLong(), any()))
+                .thenReturn(new PageImpl<>(List.of(ItemRequest.builder().id(1L).description("desc")
+                        .created(time).build())));
+        when(itemRepository.findByRequestIdOrderByIdAsc(anyLong())).thenReturn(List.of());
+
+        List<ItemRequestDto> requests = service.getAllByUser(1, 0, 1);
+
+        assertNotNull(requests, "null не возвращает список");
+        assertEquals(1, requests.size(), "Пустой список");
+        assertEquals(requestDto, requests.get(0), "Не тот объект сохраняется");
+        assertEquals(0, requests.get(0).getItems().size(), "не пустой список items");
+    }
+
+    @Test
+    void getAll() {
+        LocalDateTime time = LocalDateTime.now();
+        ItemRequestDto requestDto = ItemRequestDto.builder().id(1L).description("desc")
+                .created(time).items(List.of()).build();
+        when(userService.getById(anyLong()))
+                .thenReturn(UserDto.builder().id(1L).email("user@mail").name("name").build());
+        when(repository.findByOwnerIdNot(anyLong(), any()))
+                .thenReturn(new PageImpl<>(List.of(ItemRequest.builder().id(1L).description("desc")
+                        .created(time).build())));
+        when(itemRepository.findByRequestIdOrderByIdAsc(anyLong())).thenReturn(List.of());
+
+        List<ItemRequestDto> requests = service.getAll(1, 0, 1);
+
+        assertNotNull(requests, "null не возвращает список");
+        assertEquals(1, requests.size(), "Пустой список");
+        assertEquals(requestDto, requests.get(0), "Не тот объект сохраняется");
+        assertEquals(0, requests.get(0).getItems().size(), "не пустой список items");
     }
 }
