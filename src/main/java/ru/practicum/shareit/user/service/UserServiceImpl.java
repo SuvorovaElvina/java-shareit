@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void updateEmail(User user, UserDto userDto) {
-        if (Optional.ofNullable(userDto.getEmail()).isPresent()){
+        if (Optional.ofNullable(userDto.getEmail()).isPresent()) {
             if (!userDto.getEmail().isBlank()) {
                 user.setEmail(userDto.getEmail());
             }
