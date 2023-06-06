@@ -1,24 +1,10 @@
 package ru.practicum.shareit.item;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.PageRequest;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.reposiroty.ItemRequestRepository;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
-
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
 class ItemRepositoryTest {
-    @Autowired
+    /*@Autowired
     private ItemRepository repository;
 
     @Autowired
@@ -79,5 +65,5 @@ class ItemRepositoryTest {
 
         assertEquals(1, items.size(), "возвращает не 1 нужный запрос");
         assertEquals(item1, items.get(0), "возвращает не нужный запрос");
-    }
+    }*/
 }

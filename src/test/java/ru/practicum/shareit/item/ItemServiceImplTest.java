@@ -1,12 +1,15 @@
 package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.IncorrectCountException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.mapper.CommentMapper;
+import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -19,12 +22,12 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.ValidationException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +46,7 @@ class ItemServiceImplTest {
 
     private final BookingMapper bookingMapper = mock(BookingMapper.class);
 
-    private final CommentMapper commentMapper = mock(CommentMapper.class);
+    private final CommentMapper commentMapper = new CommentMapper();
 
     private ItemService service =
             new ItemServiceImpl(userService, requestService, repository, bookingRepository,
@@ -261,5 +264,67 @@ class ItemServiceImplTest {
         mapper = mock(ItemMapper.class);
         service = new ItemServiceImpl(userService, requestService, repository, bookingRepository,
                 commentRepository, mapper, bookingMapper, commentMapper);
+    }
+
+    @Test
+    void addComment() {
+        when(bookingRepository.findByItemIdAndBookerIdAndEndBeforeAndStatusNotLike
+                (anyLong(), anyLong(), any(), any()))
+                .thenReturn(Optional.of(List.of(Booking.builder().id(1L)
+                        .start(LocalDateTime.now())
+                        .end(LocalDateTime.now()).build())));
+        User user = User.builder().name("name").build();
+        LocalDateTime time = LocalDateTime.now();
+        when(userService.getUser(anyLong())).thenReturn(user);
+        when(repository.findById(anyLong())).thenReturn(Optional.of(Item.builder().build()));
+        when(commentRepository.save(any())).thenReturn(Comment.builder().id(1L)
+                        .created(time)
+                        .author(user)
+                        .item(Item.builder().build())
+                        .text("text").build());
+        CommentDto commentDto = CommentDto.builder().text("text").build();
+
+        CommentDto commentDto1 = service.addComment(1, 1, commentDto);
+
+        assertEquals(commentDto.getText(), commentDto1.getText(), "не сохроняет текст");
+        assertEquals(user.getName(), commentDto1.getAuthorName(), "не сохроняет name");
+        assertEquals(time, commentDto1.getCreated(), "не сохроняет time");
+    }
+
+    @Test
+    void searchText() {
+        when(repository.search(anyString(), any())).thenReturn(Page.empty());
+
+        List<ItemDto> itemDtos = service.searchText(1, "text", 0, 1);
+
+        assertEquals(0, itemDtos.size(), "не вызывается поиск по тексту");
+    }
+
+    @Test
+    void getAll() {
+        when(repository.findByOwnerId(anyLong(), any())).thenReturn(Page.empty());
+
+        List<ItemDto> itemDtos = service.getAll(1, 0, 1);
+
+        assertEquals(0, itemDtos.size(), "не вызывается поиск по тексту");
+    }
+
+    @Test
+    void getById() {
+        when(repository.findById(anyLong())).thenReturn(Optional.of(Item.builder()
+                .owner(User.builder().id(1L).build()).build()));
+        when(mapper.toItemDto(any())).thenReturn(ItemDto.builder().id(1L)
+                .owner(User.builder().id(1L).build()).build());
+        when(bookingRepository.findFirst1ByItemIdAndStartBeforeOrderByStartDesc(anyLong(), any()))
+                .thenReturn(Optional.empty());
+        when(bookingRepository.findFirst1ByItemIdAndStartAfterAndStatusNotLikeOrderByStartAsc(anyLong(),any(), any()))
+                .thenReturn(Optional.empty());
+        when(commentRepository.findAllByItemId(anyLong())).thenReturn(Optional.empty());
+
+        ItemDto itemDtos = service.getById(1, 1);
+
+        assertNull(itemDtos.getNextBooking(), "Booking не присваивается");
+        assertNull(itemDtos.getLastBooking(), "Booking не присваивается");
+        assertEquals(0, itemDtos.getComments().size(), "комментарии не присваиваются");
     }
 }

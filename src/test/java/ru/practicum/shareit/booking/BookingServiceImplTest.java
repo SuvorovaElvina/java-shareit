@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -13,11 +14,13 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.UnknownStateException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -446,6 +449,212 @@ class BookingServiceImplTest {
         assertEquals(booking.getEnd(), bookingDto.getEnd(), "Не возвращает нужный end");
         assertEquals(booking.getItem(), bookingDto.getItem(), "Не возвращает нужный item");
         assertEquals(Status.REJECTED, bookingDto.getStatus(), "Не возвращает нужный status");
+
+        mapper = mock(BookingMapper.class);
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+    }
+
+    @Test
+    void getAllByOwnerStateAll() {
+        mapper = new BookingMapper();
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+        when(userService.getById(anyLong())).thenReturn(UserDto.builder().build());
+        when(repository.findByOwnerId(anyLong(), any()))
+                .thenReturn(Page.empty());
+
+        List<BookingDto> bookingDtos = service.getAllByOwner(1, "ALL", 0, 1);
+
+        assertNotNull(bookingDtos, "null при получении (возможно проверить работу маппера)");
+        assertEquals(0, bookingDtos.size(), "Не возвращается список");
+
+        mapper = mock(BookingMapper.class);
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+    }
+
+
+    @Test
+    void getAllByOwnerStateFUTURE() {
+        mapper = new BookingMapper();
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+        when(userService.getById(anyLong())).thenReturn(UserDto.builder().build());
+        when(repository.findByOwnerIdAndStatusIn(anyLong(), any(), any()))
+                .thenReturn(Page.empty());
+
+        List<BookingDto> bookingDtos = service.getAllByOwner(1, "FUTURE", 0, 1);
+
+        assertNotNull(bookingDtos, "null при получении (возможно проверить работу маппера)");
+        assertEquals(0, bookingDtos.size(), "Не возвращается список");
+
+        mapper = mock(BookingMapper.class);
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+    }
+
+    @Test
+    void getAllByOwnerStateREJECTED() {
+        mapper = new BookingMapper();
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+        when(userService.getById(anyLong())).thenReturn(UserDto.builder().build());
+        when(repository.findByOwnerIdAndStatus(anyLong(), any(), any()))
+                .thenReturn(Page.empty());
+
+        List<BookingDto> bookingDtos = service.getAllByOwner(1, "REJECTED", 0, 1);
+
+        assertNotNull(bookingDtos, "null при получении (возможно проверить работу маппера)");
+        assertEquals(0, bookingDtos.size(), "Не возвращается список");
+
+        mapper = mock(BookingMapper.class);
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+    }
+
+    @Test
+    void getAllByOwnerStateWAITING() {
+        mapper = new BookingMapper();
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+        when(userService.getById(anyLong())).thenReturn(UserDto.builder().build());
+        when(repository.findByOwnerIdAndStatus(anyLong(), any(), any()))
+                .thenReturn(Page.empty());
+
+        List<BookingDto> bookingDtos = service.getAllByOwner(1, "WAITING", 0, 1);
+
+        assertNotNull(bookingDtos, "null при получении (возможно проверить работу маппера)");
+        assertEquals(0, bookingDtos.size(), "Не возвращается список");
+
+        mapper = mock(BookingMapper.class);
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+    }
+
+    @Test
+    void getAllByOwnerStateCURRENT() {
+        mapper = new BookingMapper();
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+        when(userService.getById(anyLong())).thenReturn(UserDto.builder().build());
+        when(repository.findByOwnerIdCurrent(anyLong(), any(), any()))
+                .thenReturn(Page.empty());
+
+        List<BookingDto> bookingDtos = service.getAllByOwner(1, "CURRENT", 0, 1);
+
+        assertNotNull(bookingDtos, "null при получении (возможно проверить работу маппера)");
+        assertEquals(0, bookingDtos.size(), "Не возвращается список");
+
+        mapper = mock(BookingMapper.class);
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+    }
+
+    @Test
+    void getAllByOwnerStatePAST() {
+        mapper = new BookingMapper();
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+        when(userService.getById(anyLong())).thenReturn(UserDto.builder().build());
+        when(repository.findByOwnerIdPast(anyLong(), any(), any()))
+                .thenReturn(Page.empty());
+
+        List<BookingDto> bookingDtos = service.getAllByOwner(1, "PAST", 0, 1);
+
+        assertNotNull(bookingDtos, "null при получении (возможно проверить работу маппера)");
+        assertEquals(0, bookingDtos.size(), "Не возвращается список");
+
+        mapper = mock(BookingMapper.class);
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+    }
+
+    @Test
+    void getAllByUserStateAll() {
+        mapper = new BookingMapper();
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+        when(userService.getById(anyLong())).thenReturn(UserDto.builder().build());
+        when(repository.findByBookerId(anyLong(), any()))
+                .thenReturn(Page.empty());
+
+        List<BookingDto> bookingDtos = service.getAllByUser(1, "ALL", 0, 1);
+
+        assertNotNull(bookingDtos, "null при получении (возможно проверить работу маппера)");
+        assertEquals(0, bookingDtos.size(), "Не возвращается список");
+
+        mapper = mock(BookingMapper.class);
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+    }
+
+
+    @Test
+    void getAllByUserStateFUTURE() {
+        mapper = new BookingMapper();
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+        when(userService.getById(anyLong())).thenReturn(UserDto.builder().build());
+        when(repository.findByBookerIdAndStatusIn(anyLong(), any(), any()))
+                .thenReturn(Page.empty());
+
+        List<BookingDto> bookingDtos = service.getAllByUser(1, "FUTURE", 0, 1);
+
+        assertNotNull(bookingDtos, "null при получении (возможно проверить работу маппера)");
+        assertEquals(0, bookingDtos.size(), "Не возвращается список");
+
+        mapper = mock(BookingMapper.class);
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+    }
+
+    @Test
+    void getAllByUserStateREJECTED() {
+        mapper = new BookingMapper();
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+        when(userService.getById(anyLong())).thenReturn(UserDto.builder().build());
+        when(repository.findByBookerIdAndStatusIs(anyLong(), any(), any()))
+                .thenReturn(Page.empty());
+
+        List<BookingDto> bookingDtos = service.getAllByUser(1, "REJECTED", 0, 1);
+
+        assertNotNull(bookingDtos, "null при получении (возможно проверить работу маппера)");
+        assertEquals(0, bookingDtos.size(), "Не возвращается список");
+
+        mapper = mock(BookingMapper.class);
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+    }
+
+    @Test
+    void getAllByUserStateWAITING() {
+        mapper = new BookingMapper();
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+        when(userService.getById(anyLong())).thenReturn(UserDto.builder().build());
+        when(repository.findByBookerIdAndStatusIs(anyLong(), any(), any()))
+                .thenReturn(Page.empty());
+
+        List<BookingDto> bookingDtos = service.getAllByUser(1, "WAITING", 0, 1);
+
+        assertNotNull(bookingDtos, "null при получении (возможно проверить работу маппера)");
+        assertEquals(0, bookingDtos.size(), "Не возвращается список");
+
+        mapper = mock(BookingMapper.class);
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+    }
+
+    @Test
+    void getAllByUserStateCURRENT() {
+        mapper = new BookingMapper();
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+        when(userService.getById(anyLong())).thenReturn(UserDto.builder().build());
+        when(repository.findByBookerIdAndStartBeforeAndEndAfter(anyLong(), any(), any(), any()))
+                .thenReturn(Page.empty());
+
+        List<BookingDto> bookingDtos = service.getAllByUser(1, "CURRENT", 0, 1);
+
+        assertNotNull(bookingDtos, "null при получении (возможно проверить работу маппера)");
+        assertEquals(0, bookingDtos.size(), "Не возвращается список");
+
+        mapper = mock(BookingMapper.class);
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+    }
+
+    @Test
+    void getAllByUserStatePAST() {
+        mapper = new BookingMapper();
+        service = new BookingServiceImpl(mapper, itemService, userService, repository);
+        when(userService.getById(anyLong())).thenReturn(UserDto.builder().build());
+        when(repository.findByBookerIdAndEndBefore(anyLong(), any(), any()))
+                .thenReturn(Page.empty());
+
+        List<BookingDto> bookingDtos = service.getAllByUser(1, "PAST", 0, 1);
+
+        assertNotNull(bookingDtos, "null при получении (возможно проверить работу маппера)");
+        assertEquals(0, bookingDtos.size(), "Не возвращается список");
 
         mapper = mock(BookingMapper.class);
         service = new BookingServiceImpl(mapper, itemService, userService, repository);
