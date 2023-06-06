@@ -268,8 +268,8 @@ class ItemServiceImplTest {
 
     @Test
     void addComment() {
-        when(bookingRepository.findByItemIdAndBookerIdAndEndBeforeAndStatusNotLike
-                (anyLong(), anyLong(), any(), any()))
+        when(bookingRepository.findByItemIdAndBookerIdAndEndBeforeAndStatusNotLike(anyLong(), anyLong(),
+                any(), any()))
                 .thenReturn(Optional.of(List.of(Booking.builder().id(1L)
                         .start(LocalDateTime.now())
                         .end(LocalDateTime.now()).build())));
