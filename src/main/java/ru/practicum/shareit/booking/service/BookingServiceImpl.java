@@ -51,21 +51,25 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto update(long userId, long bookingId, boolean approved) {
-        Booking booking = getBooking(bookingId);
-        if (booking.getItem().getOwner().getId() == userId) {
-            if (booking.getStatus().equals(Status.APPROVED) || booking.getStatus().equals(Status.REJECTED)) {
-                throw new ValidationException("Вы уже подвертили или отказали бронирование. Повторное действие не возможно.");
-            }
-            if (approved) {
-                booking.setStatus(Status.APPROVED);
+    public BookingDto update(long userId, long bookingId, Boolean approved) {
+        if (Optional.ofNullable(approved).isPresent()) {
+            Booking booking = getBooking(bookingId);
+            if (booking.getItem().getOwner().getId() == userId) {
+                if (booking.getStatus().equals(Status.APPROVED) || booking.getStatus().equals(Status.REJECTED)) {
+                    throw new ValidationException("Вы уже подвертили или отказали бронирование. Повторное действие не возможно.");
+                }
+                if (approved) {
+                    booking.setStatus(Status.APPROVED);
+                } else {
+                    booking.setStatus(Status.REJECTED);
+                }
+                repository.save(booking);
+                return mapper.toBookingDto(booking);
             } else {
-                booking.setStatus(Status.REJECTED);
+                throw new NotFoundException("Вы не являетесь владельцем вещи.");
             }
-            repository.save(booking);
-            return mapper.toBookingDto(booking);
         } else {
-            throw new NotFoundException("Вы не являетесь владельцем вещи.");
+            throw new UnknownStateException("Обязательно должен быть указан approved");
         }
     }
 
