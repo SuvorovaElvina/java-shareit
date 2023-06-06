@@ -170,10 +170,10 @@ class ItemServiceImplTest {
                 commentRepository, mapper, bookingMapper, commentMapper);
         when(userService.getUser(anyLong())).thenReturn(User.builder().id(1L).build());
         when(repository.findById(anyLong())).thenReturn(Optional.of(Item.builder()
-                        .owner(User.builder().id(1L).build())
-                        .name("name")
-                        .description("Desc")
-                        .available(false).build()));
+                .owner(User.builder().id(1L).build())
+                .name("name")
+                .description("Desc")
+                .available(false).build()));
         ItemDto update = ItemDto.builder().available(true).description("description").name("Pen").build();
 
         ItemDto itemDto = service.update(1, 1, update);
@@ -278,10 +278,10 @@ class ItemServiceImplTest {
         when(userService.getUser(anyLong())).thenReturn(user);
         when(repository.findById(anyLong())).thenReturn(Optional.of(Item.builder().build()));
         when(commentRepository.save(any())).thenReturn(Comment.builder().id(1L)
-                        .created(time)
-                        .author(user)
-                        .item(Item.builder().build())
-                        .text("text").build());
+                .created(time)
+                .author(user)
+                .item(Item.builder().build())
+                .text("text").build());
         CommentDto commentDto = CommentDto.builder().text("text").build();
 
         CommentDto commentDto1 = service.addComment(1, 1, commentDto);
@@ -317,7 +317,7 @@ class ItemServiceImplTest {
                 .owner(User.builder().id(1L).build()).build());
         when(bookingRepository.findFirst1ByItemIdAndStartBeforeOrderByStartDesc(anyLong(), any()))
                 .thenReturn(Optional.empty());
-        when(bookingRepository.findFirst1ByItemIdAndStartAfterAndStatusNotLikeOrderByStartAsc(anyLong(),any(), any()))
+        when(bookingRepository.findFirst1ByItemIdAndStartAfterAndStatusNotLikeOrderByStartAsc(anyLong(), any(), any()))
                 .thenReturn(Optional.empty());
         when(commentRepository.findAllByItemId(anyLong())).thenReturn(Optional.empty());
 
