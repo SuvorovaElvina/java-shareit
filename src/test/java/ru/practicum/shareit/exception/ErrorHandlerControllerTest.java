@@ -8,7 +8,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.service.UserService;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -54,6 +56,13 @@ class ErrorHandlerControllerTest {
     @Test
     void getValidationException() throws Exception {
         when(service.getById(anyLong())).thenThrow(new ValidationException("Не найдено"));
+
+        mvc.perform(get("/users/1")).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getConstraintValidationException() throws Exception {
+        when(service.getById(anyLong())).thenThrow(new ConstraintViolationException(Set.of()));
 
         mvc.perform(get("/users/1")).andExpect(status().isBadRequest());
     }
