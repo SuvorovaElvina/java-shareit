@@ -5,6 +5,8 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 
+import java.util.ArrayList;
+
 @Component
 public class ItemRequestMapper {
     public ItemRequest toItemRequest(RequestDto itemRequestDto) {
@@ -18,6 +20,7 @@ public class ItemRequestMapper {
                 .id(itemRequest.getId())
                 .description(itemRequest.getDescription())
                 .created(itemRequest.getCreated())
+                .items(new ArrayList<>())
                 .build();
     }
 }
