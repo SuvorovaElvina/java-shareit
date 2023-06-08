@@ -2,6 +2,8 @@ package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import ru.practicum.shareit.booking.dto.ItemsBookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -44,7 +46,7 @@ class ItemServiceImplTest {
 
     private ItemMapper mapper = mock(ItemMapper.class);
 
-    private final BookingMapper bookingMapper = mock(BookingMapper.class);
+    private final BookingMapper bookingMapper = new BookingMapper();
 
     private final CommentMapper commentMapper = new CommentMapper();
 
@@ -326,5 +328,59 @@ class ItemServiceImplTest {
         assertNull(itemDtos.getNextBooking(), "Booking не присваивается");
         assertNull(itemDtos.getLastBooking(), "Booking не присваивается");
         assertEquals(0, itemDtos.getComments().size(), "комментарии не присваиваются");
+    }
+
+    @Test
+    void getAllWithManyBooking() {
+        mapper = new ItemMapper();
+        service = new ItemServiceImpl(userService, requestService, repository, bookingRepository,
+                commentRepository, mapper, bookingMapper, commentMapper);
+        Item item = Item.builder().id(1L).name("first").description("desc").build();
+        Item item1 = Item.builder().id(2L).name("second").description("desc1").build();
+        Item item2 = Item.builder().id(3L).name("free").description("desc2").build();
+        when(repository.findByOwnerId(anyLong(), any())).thenReturn(new PageImpl<>(List.of(item2, item, item1)));
+
+        Booking bookingLast = Booking.builder().id(1L).end(LocalDateTime.now().minusDays(2)).start(LocalDateTime.now().minusDays(3))
+                .item(item2).booker(User.builder().id(1L).build()).build();
+        Booking bookingLast1 = Booking.builder().id(2L).end(LocalDateTime.now().minusHours(1)).start(LocalDateTime.now().minusDays(1))
+                .item(item2).booker(User.builder().id(1L).build()).build();
+        Booking bookingLast2 = Booking.builder().id(3L).end(LocalDateTime.now().minusMonths(1)).start(LocalDateTime.now().minusDays(5))
+                .item(item2).booker(User.builder().id(1L).build()).build();
+        when(bookingRepository.findByItemInAndStartBeforeOrderByStartDesc(any(), any()))
+                .thenReturn(List.of(bookingLast1, bookingLast, bookingLast2));
+
+        Booking bookingNext = Booking.builder().id(1L).end(LocalDateTime.now().plusDays(2)).start(LocalDateTime.now().plusDays(3))
+                .item(item2).booker(User.builder().id(1L).build()).build();
+        Booking bookingNext1 = Booking.builder().id(3L).end(LocalDateTime.now().plusHours(1)).start(LocalDateTime.now().plusDays(1))
+                .item(item2).booker(User.builder().id(1L).build()).build();
+        Booking bookingNext2 = Booking.builder().id(2L).end(LocalDateTime.now().plusMonths(1)).start(LocalDateTime.now().plusDays(5))
+                .item(item2).booker(User.builder().id(1L).build()).build();
+        when(bookingRepository.findByItemInAndStartAfterAndStatusNotLikeOrderByStartAsc(any(), any(), any()))
+                .thenReturn(List.of(bookingNext1, bookingNext, bookingNext2));
+
+        when(commentRepository.findByItemIn(any(), any())).thenReturn(List.of(Comment.builder()
+                .id(1L)
+                .text("text")
+                .item(item)
+                .author(User.builder().name("Name").build())
+                .build()));
+
+        List<ItemDto> itemDtos = service.getAll(1, 0, 5);
+
+        ItemsBookingDto bookingDtoLast = ItemsBookingDto.builder().bookerId(1L).id(2L).build();
+        ItemsBookingDto bookingDtoNext = ItemsBookingDto.builder().bookerId(1L).id(3L).build();
+        CommentDto commentDto = CommentDto.builder().id(1L).text("text").authorName("Name").build();
+
+        assertEquals(bookingDtoLast, itemDtos.get(0).getLastBooking(), "Не сохроняет нужное последние бронирование");
+        assertEquals(bookingDtoNext, itemDtos.get(0).getNextBooking(), "Не сохроняет нужное следующее бронирование");
+        assertNull(itemDtos.get(1).getNextBooking(), "Сохроняет когда должен быть null");
+        assertNull(itemDtos.get(1).getLastBooking(), "Сохроняет когда должен быть null");
+        assertEquals(commentDto, itemDtos.get(1).getComments().get(0), "Сохроняет когда должен быть null");
+        assertNull(itemDtos.get(2).getNextBooking(), "Сохроняет когда должен быть null");
+        assertNull(itemDtos.get(2).getLastBooking(), "Сохроняет когда должен быть null");
+
+        mapper = mock(ItemMapper.class);
+        service = new ItemServiceImpl(userService, requestService, repository, bookingRepository,
+                commentRepository, mapper, bookingMapper, commentMapper);
     }
 }
