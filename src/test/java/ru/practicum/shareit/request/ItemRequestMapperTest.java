@@ -2,6 +2,7 @@ package ru.practicum.shareit.request;
 
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 
@@ -14,7 +15,7 @@ class ItemRequestMapperTest {
 
     @Test
     void toItemRequest() {
-        ItemRequestDto requestDto = ItemRequestDto.builder()
+        RequestDto requestDto = RequestDto.builder()
                 .description("description")
                 .build();
         ItemRequest request = mapper.toItemRequest(requestDto);
