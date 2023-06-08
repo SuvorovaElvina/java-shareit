@@ -19,11 +19,11 @@ class ItemRepositoryTest {
 
     @Test
     void search() {
-        Item item = Item.builder().id(6L).name("name").description("desc").available(true).build();
-        Item item1 = Item.builder().id(7L).name("text").description("text").available(true).build();
+        Item item = Item.builder().id(7L).name("text").description("text").available(true).build();
+        Item item2 = Item.builder().id(7L).name("qqq").description("asd").available(true).build();
 
-        repository.save(item);
-        repository.save(item1);
+        Item item1 = repository.save(item);
+        repository.save(item2);
 
         List<Item> items = repository.search("text", PageRequest.of(0, 3))
                 .stream().collect(Collectors.toList());

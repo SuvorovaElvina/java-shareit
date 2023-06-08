@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -31,14 +31,17 @@ class BookingRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
-    private final User user = User.builder().id(1L).name("name").email("user@mail").build();
-    private final Item item = Item.builder().id(1L).owner(user).name("name").description("desc").build();
+    private User user;
+    private Item item;
 
-    @AfterEach
+    @BeforeEach
     void setUp() {
         repository.deleteAll();
         itemRepository.deleteAll();
         userRepository.deleteAll();
+
+        user = userRepository.save(User.builder().id(1L).name("name").email("user@mail").build());
+        item = itemRepository.save(Item.builder().id(1L).owner(user).name("name").description("desc").build());
     }
 
     @Test
@@ -48,12 +51,10 @@ class BookingRepositoryTest {
         Booking booking1 = Booking.builder().status(Status.REJECTED).item(item)
                 .end(LocalDateTime.now()).start(LocalDateTime.now()).build();
 
-        userRepository.save(user);
-        itemRepository.save(item);
-        repository.save(booking);
+        booking = repository.save(booking);
         repository.save(booking1);
 
-        List<Booking> bookings = repository.findByOwnerIdAndStatusIn(1L, Set.of(Status.WAITING, Status.APPROVED),
+        List<Booking> bookings = repository.findByOwnerIdAndStatusIn(user.getId(), Set.of(Status.WAITING, Status.APPROVED),
                 PageRequest.of(0, 2)).stream().collect(toList());
 
         assertNotNull(bookings, "Не возвращает список");
@@ -63,19 +64,15 @@ class BookingRepositoryTest {
 
     @Test
     void findByOwnerIdAndStatus() {
-        user.setId(2L);
-        item.setId(2L);
         Booking booking = Booking.builder().status(Status.WAITING).item(item)
                 .end(LocalDateTime.now()).start(LocalDateTime.now()).build();
         Booking booking1 = Booking.builder().status(Status.REJECTED).item(item)
                 .end(LocalDateTime.now()).start(LocalDateTime.now()).build();
 
-        userRepository.save(user);
-        itemRepository.save(item);
         repository.save(booking);
-        repository.save(booking1);
+        booking1 = repository.save(booking1);
 
-        List<Booking> bookings = repository.findByOwnerIdAndStatus(2L, Status.REJECTED,
+        List<Booking> bookings = repository.findByOwnerIdAndStatus(user.getId(), Status.REJECTED,
                 PageRequest.of(0, 2)).stream().collect(toList());
 
         assertNotNull(bookings, "Не возвращает список");
@@ -85,20 +82,15 @@ class BookingRepositoryTest {
 
     @Test
     void findByOwnerId() {
-        user.setId(4L);
-        item.setOwner(user);
-        item.setId(4L);
         Booking booking = Booking.builder().status(Status.WAITING).item(item)
                 .end(LocalDateTime.now()).start(LocalDateTime.now()).build();
         Booking booking1 = Booking.builder().status(Status.REJECTED).item(item)
                 .end(LocalDateTime.now()).start(LocalDateTime.now()).build();
 
-        userRepository.save(user);
-        itemRepository.save(item);
-        repository.save(booking);
-        repository.save(booking1);
+        booking = repository.save(booking);
+        booking1 = repository.save(booking1);
 
-        List<Booking> bookings = repository.findByOwnerId(4L, PageRequest.of(0, 2))
+        List<Booking> bookings = repository.findByOwnerId(user.getId(), PageRequest.of(0, 2))
                 .stream().collect(toList());
 
         assertNotNull(bookings, "Не возвращает список");
@@ -109,19 +101,15 @@ class BookingRepositoryTest {
 
     @Test
     void findByOwnerIdCurrent() {
-        user.setId(5L);
-        item.setId(5L);
         Booking booking = Booking.builder().status(Status.WAITING).item(item)
                 .end(LocalDateTime.now()).start(LocalDateTime.now()).build();
         Booking booking1 = Booking.builder().status(Status.REJECTED).item(item)
                 .end(LocalDateTime.now().plusDays(1)).start(LocalDateTime.now().minusDays(1)).build();
 
-        userRepository.save(user);
-        itemRepository.save(item);
         repository.save(booking);
-        repository.save(booking1);
+        booking1 = repository.save(booking1);
 
-        List<Booking> bookings = repository.findByOwnerIdCurrent(5L, LocalDateTime.now(),
+        List<Booking> bookings = repository.findByOwnerIdCurrent(user.getId(), LocalDateTime.now(),
                 PageRequest.of(0, 2)).stream().collect(toList());
 
         assertNotNull(bookings, "Не возвращает список");
@@ -131,20 +119,15 @@ class BookingRepositoryTest {
 
     @Test
     void findByOwnerIdPast() {
-        user.setId(3L);
-        item.setOwner(user);
-        item.setId(3L);
         Booking booking = Booking.builder().status(Status.WAITING).item(item)
                 .end(LocalDateTime.now().plusDays(1)).start(LocalDateTime.now()).build();
         Booking booking1 = Booking.builder().status(Status.REJECTED).item(item)
                 .end(LocalDateTime.now().minusDays(1)).start(LocalDateTime.now()).build();
 
-        userRepository.save(user);
-        itemRepository.save(item);
         repository.save(booking);
-        repository.save(booking1);
+        booking1 = repository.save(booking1);
 
-        List<Booking> bookings = repository.findByOwnerIdPast(3L, LocalDateTime.now(),
+        List<Booking> bookings = repository.findByOwnerIdPast(user.getId(), LocalDateTime.now(),
                 PageRequest.of(0, 2)).stream().collect(toList());
 
         assertNotNull(bookings, "Не возвращает список");
