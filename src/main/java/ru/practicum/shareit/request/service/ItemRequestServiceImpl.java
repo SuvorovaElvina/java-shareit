@@ -52,9 +52,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getAllByUser(long userId, int from, int size) {
         userService.getById(userId);
-        if (from < 0 || size <= 0) {
-            throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
-        }
         int pageNumber = (int) Math.ceil((double) from / size);
         Page<ItemRequest> requests = repository.findByOwnerId(userId, PageRequest.of(pageNumber, size, Sort.by("created")));
         List<ItemRequestDto> requestsDto = requests.stream()
@@ -72,9 +69,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getAll(long userId, int from, int size) {
         userService.getById(userId);
-        if (from < 0 || size <= 0) {
-            throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
-        }
         int pageNumber = (int) Math.ceil((double) from / size);
         Page<ItemRequest> requests = repository.findByOwnerIdNot(userId, PageRequest.of(pageNumber, size, Sort.by("created").descending()));
         List<ItemRequestDto> requestsDto = requests.stream()

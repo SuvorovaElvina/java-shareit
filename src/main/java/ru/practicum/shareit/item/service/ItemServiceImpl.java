@@ -87,9 +87,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAll(long userId, int from, int size) {
-        if (from < 0 || size <= 0) {
-            throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
-        }
         int pageNumber = (int) Math.ceil((double) from / size);
         Page<Item> items = repository.findByOwnerId(userId, PageRequest.of(pageNumber, size, Sort.by("id").ascending()));
         List<ItemDto> itemsDto = new ArrayList<>();
@@ -116,9 +113,6 @@ public class ItemServiceImpl implements ItemService {
         if (text.isBlank()) {
             return List.of();
         } else {
-            if (from < 0 || size <= 0) {
-                throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
-            }
             int pageNumber = (int) Math.ceil((double) from / size);
             Page<Item> items = repository.search(text, PageRequest.of(pageNumber, size));
             return items.stream()

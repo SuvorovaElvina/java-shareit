@@ -86,9 +86,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getAllByUser(long bookerId, String state, int from, int size) {
         userService.getById(bookerId);
-        if (from < 0 || size <= 0) {
-            throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
-        }
         Page<Booking> bookings;
         int pageNumber = (int) Math.ceil((double) from / size);
         switch (state) {
@@ -127,9 +124,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getAllByOwner(long ownerId, String state, int from, int size) {
         userService.getById(ownerId);
-        if (from < 0 || size <= 0) {
-            throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
-        }
         Page<Booking> bookings;
         int pageNumber = (int) Math.ceil((double) from / size);
         switch (state) {
