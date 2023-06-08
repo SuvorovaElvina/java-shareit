@@ -56,20 +56,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUser(long id) {
-        Optional<User> optional = repository.findById(id);
-        if (optional.isEmpty()) {
-            if (id < 0) {
-                throw new IncorrectCountException("id не должно быть меньше 0.");
-            } else {
-                throw new NotFoundException(String.format("Пользователь с id %d - не существует.", id));
-            }
-        } else {
-            return optional.get();
+        if (id < 0) {
+            throw new IncorrectCountException("id не должно быть меньше 0.");
         }
+        Optional<User> optional = repository.findById(id);
+        return optional.orElseThrow(() -> new NotFoundException(String.format("Пользователь с id %d - не существует.", id)));
     }
 
     private void updateName(User user, UserDto userDto) {
-        if (Optional.ofNullable(userDto.getName()).isPresent()) {
+        if (userDto.getName() != null) {
             if (!userDto.getName().isBlank()) {
                 user.setName(userDto.getName());
             }
@@ -77,7 +72,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void updateEmail(User user, UserDto userDto) {
-        if (Optional.ofNullable(userDto.getEmail()).isPresent()) {
+        if (userDto.getEmail() != null) {
             if (!userDto.getEmail().isBlank()) {
                 user.setEmail(userDto.getEmail());
             }

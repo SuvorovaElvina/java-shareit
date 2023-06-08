@@ -47,7 +47,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto add(long id, ItemDto itemDto) {
         Item item = mapper.toItem(itemDto);
         item.setOwner(service.getUser(id));
-        if (Optional.ofNullable(itemDto.getRequestId()).isPresent()) {
+        if (itemDto.getRequestId() != null) {
             item.setRequest(requestService.reply(itemDto.getRequestId()));
         }
         return mapper.toItemDto(repository.save(item));
@@ -114,7 +114,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> searchText(long userId, String text, int from, int size) {
         if (text.isBlank()) {
-            return new ArrayList<>();
+            return List.of();
         } else {
             if (from < 0 || size <= 0) {
                 throw new ValidationException("Значения указанные в from или size не должы быть отрицательными.");
@@ -142,20 +142,15 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item getItem(long id) {
-        Optional<Item> optional = repository.findById(id);
-        if (optional.isEmpty()) {
-            if (id < 0) {
-                throw new IncorrectCountException("id не должно быть меньше 0.");
-            } else {
-                throw new NotFoundException(String.format("Вещь с id %d - не существует.", id));
-            }
-        } else {
-            return optional.get();
+        if (id < 0) {
+            throw new IncorrectCountException("id не должно быть меньше 0.");
         }
+        Optional<Item> optional = repository.findById(id);
+        return optional.orElseThrow(() -> new NotFoundException(String.format("Вещь с id %d - не существует.", id)));
     }
 
     private void updateName(Item item, ItemDto itemDto) {
-        if (Optional.ofNullable(itemDto.getName()).isPresent()) {
+        if (itemDto.getName() != null) {
             if (!itemDto.getName().isBlank()) {
                 item.setName(itemDto.getName());
             }
@@ -163,7 +158,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void updateDescription(Item item, ItemDto itemDto) {
-        if (Optional.ofNullable(itemDto.getDescription()).isPresent()) {
+        if (itemDto.getDescription() != null) {
             if (!itemDto.getDescription().isBlank()) {
                 item.setDescription(itemDto.getDescription());
             }
@@ -171,7 +166,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void updateAvailable(Item item, ItemDto itemDto) {
-        if (Optional.ofNullable(itemDto.getAvailable()).isPresent()) {
+        if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }
     }
