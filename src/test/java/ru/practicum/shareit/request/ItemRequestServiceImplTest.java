@@ -3,6 +3,7 @@ package ru.practicum.shareit.request;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import ru.practicum.shareit.exception.IncorrectCountException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -101,6 +102,15 @@ class ItemRequestServiceImplTest {
 
         Throwable thrown = assertThrows(NotFoundException.class, () -> {
             service.reply(0);
+        });
+
+        assertNotNull(thrown.getMessage());
+    }
+
+    @Test
+    void replyIncorrectCountException() {
+        Throwable thrown = assertThrows(IncorrectCountException.class, () -> {
+            service.reply(-1);
         });
 
         assertNotNull(thrown.getMessage());
