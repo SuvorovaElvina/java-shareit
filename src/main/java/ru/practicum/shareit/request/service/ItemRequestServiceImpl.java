@@ -10,6 +10,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.reposiroty.ItemRequestRepository;
@@ -30,8 +31,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemMapper itemMapper;
 
     @Override
-    public ItemRequestDto add(long userId, ItemRequestDto itemRequestDto) {
-        ItemRequest itemRequest = mapper.toItemRequest(itemRequestDto);
+    public ItemRequestDto add(long userId, RequestDto requestDto) {
+        ItemRequest itemRequest = mapper.toItemRequest(requestDto);
         itemRequest.setOwner(userService.getUser(userId));
         itemRequest.setCreated(LocalDateTime.now());
         return mapper.toItemRequestDto(repository.save(itemRequest));

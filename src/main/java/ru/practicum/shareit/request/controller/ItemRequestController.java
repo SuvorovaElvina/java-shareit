@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.validation.Create;
 
@@ -23,8 +24,8 @@ public class ItemRequestController {
 
     @PostMapping
     @Validated({Create.class})
-    public ItemRequestDto createRequest(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody ItemRequestDto itemRequestDto) {
-        return service.add(userId, itemRequestDto);
+    public ItemRequestDto createRequest(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody RequestDto requestDto) {
+        return service.add(userId, requestDto);
     }
 
     @GetMapping("/{requestId}")
