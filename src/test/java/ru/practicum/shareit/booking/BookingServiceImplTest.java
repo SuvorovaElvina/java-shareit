@@ -193,7 +193,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllByUserFromNegative() {
-        Throwable thrown = assertThrows(ValidationException.class, () -> {
+        Throwable thrown = assertThrows(IllegalArgumentException.class, () -> {
             service.getAllByUser(1, "ALL", -1, 1);
         });
 
@@ -202,7 +202,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllByUserSizeNegative() {
-        Throwable thrown = assertThrows(ValidationException.class, () -> {
+        Throwable thrown = assertThrows(IllegalArgumentException.class, () -> {
             service.getAllByUser(1, "ALL", 0, -1);
         });
 
@@ -211,7 +211,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllByUserSizeZero() {
-        Throwable thrown = assertThrows(ValidationException.class, () -> {
+        Throwable thrown = assertThrows(IllegalArgumentException.class, () -> {
             service.getAllByUser(1, "ALL", 0, 0);
         });
 
@@ -229,7 +229,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllByOwnerFromNegative() {
-        Throwable thrown = assertThrows(ValidationException.class, () -> {
+        Throwable thrown = assertThrows(IllegalArgumentException.class, () -> {
             service.getAllByOwner(1, "ALL", -1, 1);
         });
 
@@ -238,7 +238,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllByOwnerSizeNegative() {
-        Throwable thrown = assertThrows(ValidationException.class, () -> {
+        Throwable thrown = assertThrows(IllegalArgumentException.class, () -> {
             service.getAllByOwner(1, "ALL", 0, -1);
         });
 
@@ -247,7 +247,7 @@ class BookingServiceImplTest {
 
     @Test
     void getAllByOwnerSizeZero() {
-        Throwable thrown = assertThrows(ValidationException.class, () -> {
+        Throwable thrown = assertThrows(IllegalArgumentException.class, () -> {
             service.getAllByOwner(1, "ALL", 0, 0);
         });
 

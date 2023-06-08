@@ -43,7 +43,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getAllByUserFromNegative() {
-        Throwable thrown = assertThrows(ValidationException.class, () -> {
+        Throwable thrown = assertThrows(IllegalArgumentException.class, () -> {
             service.getAllByUser(1, -1, 1);
         });
 
@@ -52,7 +52,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getAllByUserSizeNegative() {
-        Throwable thrown = assertThrows(ValidationException.class, () -> {
+        Throwable thrown = assertThrows(IllegalArgumentException.class, () -> {
             service.getAllByUser(1, 0, -1);
         });
 
@@ -61,7 +61,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getAllByUserSizeZero() {
-        Throwable thrown = assertThrows(ValidationException.class, () -> {
+        Throwable thrown = assertThrows(IllegalArgumentException.class, () -> {
             service.getAllByUser(1, 0, 0);
         });
 
@@ -70,7 +70,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getAllFromNegative() {
-        Throwable thrown = assertThrows(ValidationException.class, () -> {
+        Throwable thrown = assertThrows(IllegalArgumentException.class, () -> {
             service.getAll(1, -1, 1);
         });
 
@@ -79,7 +79,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getAllSizeNegative() {
-        Throwable thrown = assertThrows(ValidationException.class, () -> {
+        Throwable thrown = assertThrows(IllegalArgumentException.class, () -> {
             service.getAll(1, 0, -1);
         });
 
@@ -88,7 +88,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getAllSizeZero() {
-        Throwable thrown = assertThrows(ValidationException.class, () -> {
+        Throwable thrown = assertThrows(IllegalArgumentException.class, () -> {
             service.getAll(1, 0, 0);
         });
 
