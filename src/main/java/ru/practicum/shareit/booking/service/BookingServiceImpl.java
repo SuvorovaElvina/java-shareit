@@ -166,16 +166,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private Booking getBooking(long id) {
-        Optional<Booking> booking = repository.findById(id);
-        if (booking.isEmpty()) {
-            if (id < 0) {
-                throw new IncorrectCountException("id не должно быть меньше 0.");
-            } else {
-                throw new NotFoundException(String.format("Бронирования с id %d - не существует.", id));
-            }
-        } else {
-            return booking.get();
+        if (id < 0) {
+            throw new IncorrectCountException("id не должно быть меньше 0.");
         }
+        Optional<Booking> booking = repository.findById(id);
+        return booking.orElseThrow(() -> new NotFoundException(String.format("Бронирования с id %d - не существует.", id)));
     }
 
     private void validateTime(LocalDateTime start, LocalDateTime end) {

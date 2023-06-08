@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.IncorrectCountException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -90,11 +91,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public ItemRequest reply(long requestId) {
-        Optional<ItemRequest> optional = repository.findById(requestId);
-        if (optional.isEmpty()) {
-            throw new NotFoundException(String.format("Запроса с номером %d - не найдено. Возможно не был ещё создан этот запрос.", requestId));
-        } else {
-            return optional.get();
+        if (requestId < 0) {
+            throw new IncorrectCountException("id не должно быть меньше 0.");
         }
+        Optional<ItemRequest> optional = repository.findById(requestId);
+        return optional.orElseThrow(() -> new NotFoundException(String.format("Запроса с номером %d - не найдено. Возможно не был ещё создан этот запрос.", requestId)));
     }
 }
