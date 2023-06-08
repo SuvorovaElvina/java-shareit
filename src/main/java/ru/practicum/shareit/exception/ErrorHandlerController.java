@@ -74,11 +74,8 @@ public class ErrorHandlerController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handleError(final Exception e) {
+    public Map<String, String> handleError(final RuntimeException e) {
         log.debug("Получен статус 500 Internal server error {}", e.getMessage(), e);
-        return Map.of(
-                "error", "Произошла ошибка!",
-                "errorMessage", e.getMessage()
-        );
+        return Map.of("error", e.getMessage());
     }
 }
