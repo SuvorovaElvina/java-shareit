@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BookingTest {
     Booking booking = Booking.builder().id(1L).build();
+
     @Test
     void testEquals() {
         assertTrue(booking.equals(Booking.builder().id(1L).build()));
