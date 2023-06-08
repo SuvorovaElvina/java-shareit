@@ -2,6 +2,8 @@ package ru.practicum.shareit.user.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.validation.Create;
+import ru.practicum.shareit.validation.Update;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -15,11 +17,11 @@ import javax.validation.constraints.Size;
 public class UserDto {
     Long id;
 
-    @NotBlank(message = "Имя не должно быть пустым.")
+    @NotBlank(message = "Имя не должно быть пустым.", groups = Create.class)
     @Size(max = 255)
     String name;
 
-    @NotBlank(message = "Email не должно быть пустым.")
+    @NotBlank(message = "Email не должно быть пустым.", groups = Create.class)
     @Email(message = "Введён не email.")
     @Size(max = 512)
     String email;

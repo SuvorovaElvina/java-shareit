@@ -5,6 +5,7 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.dto.ItemsBookingDto;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.validation.Create;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -19,13 +20,13 @@ import java.util.List;
 public class ItemDto {
     Long id;
     User owner;
-    @NotBlank
+    @NotBlank(groups = Create.class)
     @Size(max = 255)
     String name;
-    @NotBlank
+    @NotBlank(groups = Create.class)
     @Size(max = 512)
     String description;
-    @NotNull
+    @NotNull(groups = Create.class)
     Boolean available;
     ItemsBookingDto lastBooking;
     ItemsBookingDto nextBooking;
