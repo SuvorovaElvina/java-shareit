@@ -112,8 +112,7 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .map(mapper::toItemDto)
                 .peek(item -> {
-                    Optional.ofNullable(commentsMap.get(item.getId()))
-                            .ifPresent(item::setComments);
+                    item.setComments(commentsMap.getOrDefault(item.getId(), List.of()));
                     Optional.ofNullable(bookingsBeforeMap.get(item.getId()))
                             .ifPresent(booking -> item.setLastBooking(bookingMapper.toItemsBookingDto(booking)));
                     Optional.ofNullable(bookingsAfterMap.get(item.getId()))

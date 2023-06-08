@@ -23,7 +23,6 @@ public class ItemRequestController {
     private final ItemRequestService service;
 
     @PostMapping
-    @Validated({Create.class})
     public ItemRequestDto createRequest(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody RequestDto requestDto) {
         return service.add(userId, requestDto);
     }

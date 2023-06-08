@@ -58,20 +58,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         userService.getById(userId);
         int pageNumber = (int) Math.ceil((double) from / size);
         Page<ItemRequest> requests = repository.findByOwnerId(userId, PageRequest.of(pageNumber, size, Sort.by("created")));
-        List<ItemRequestDto> requestsDto = requests.stream()
-                .map(mapper::toItemRequestDto)
-                .collect(Collectors.toList());
-
-        Map<Long, List<ItemDto>> itemsMap = itemRepository.findByRequestInOrderByIdAsc(requests.toList())
-                .stream()
-                .filter(item -> item.getRequest() != null)
-                .collect(groupingBy(item -> item.getRequest().getId(), Collectors.mapping(itemMapper::toItemDto, Collectors.toList())));
-
-        for (ItemRequestDto requestDto : requestsDto) {
-            Optional.ofNullable(itemsMap.get(requestDto.getId()))
-                    .ifPresent(requestDto::setItems);
-        }
-        return requestsDto;
+        return setItemsForRequests(requests);
     }
 
     @Override
@@ -79,20 +66,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         userService.getById(userId);
         int pageNumber = (int) Math.ceil((double) from / size);
         Page<ItemRequest> requests = repository.findByOwnerIdNot(userId, PageRequest.of(pageNumber, size, Sort.by("created").descending()));
-        List<ItemRequestDto> requestsDto = requests.stream()
-                .map(mapper::toItemRequestDto)
-                .collect(Collectors.toList());
-
-        Map<Long, List<ItemDto>> itemsMap = itemRepository.findByRequestInOrderByIdAsc(requests.toList())
-                .stream()
-                .filter(item -> item.getRequest() != null)
-                .collect(groupingBy(item -> item.getRequest().getId(), Collectors.mapping(itemMapper::toItemDto, Collectors.toList())));
-
-        for (ItemRequestDto requestDto : requestsDto) {
-            Optional.ofNullable(itemsMap.get(requestDto.getId()))
-                    .ifPresent(requestDto::setItems);
-        }
-        return requestsDto;
+        return setItemsForRequests(requests);
     }
 
     @Override
@@ -102,5 +76,21 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         }
         Optional<ItemRequest> optional = repository.findById(requestId);
         return optional.orElseThrow(() -> new NotFoundException(String.format("Запроса с номером %d - не найдено. Возможно не был ещё создан этот запрос.", requestId)));
+    }
+
+    private List<ItemRequestDto> setItemsForRequests(Page<ItemRequest> requests) {
+        List<ItemRequestDto> requestsDto = requests.stream()
+                .map(mapper::toItemRequestDto)
+                .collect(Collectors.toList());
+
+        Map<Long, List<ItemDto>> itemsMap = itemRepository.findByRequestInOrderByIdAsc(requests.toList())
+                .stream()
+                .filter(item -> item.getRequest() != null)
+                .collect(groupingBy(item -> item.getRequest().getId(), Collectors.mapping(itemMapper::toItemDto, Collectors.toList())));
+
+        for (ItemRequestDto requestDto : requestsDto) {
+            requestDto.setItems(itemsMap.getOrDefault(requestDto.getId(), List.of()));
+        }
+        return requestsDto;
     }
 }
