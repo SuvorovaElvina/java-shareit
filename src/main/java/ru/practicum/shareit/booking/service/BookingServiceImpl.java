@@ -9,6 +9,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.booking.status.State;
 import ru.practicum.shareit.booking.status.Status;
 import ru.practicum.shareit.exception.IncorrectCountException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -84,36 +85,36 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllByUser(long bookerId, String state, int from, int size) {
+    public List<BookingDto> getAllByUser(long bookerId, String stateStr, int from, int size) {
         userService.getById(bookerId);
         Page<Booking> bookings;
         int pageNumber = (int) Math.ceil((double) from / size);
+        State state = State.fromString(stateStr);
         switch (state) {
-            case "ALL":
-                bookings = repository.findByBookerId(bookerId, PageRequest.of(pageNumber, size, Sort.by("start").descending()));
-                break;
-            case "FUTURE":
+            case FUTURE:
                 bookings = repository.findByBookerIdAndStatusIn(bookerId, Set.of(Status.WAITING, Status.APPROVED),
                         PageRequest.of(pageNumber, size, Sort.by("start").descending()));
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookings = repository.findByBookerIdAndStatusIs(bookerId, Status.REJECTED,
                         PageRequest.of(pageNumber, size, Sort.by("start").descending()));
                 break;
-            case "WAITING":
+            case WAITING:
                 bookings = repository.findByBookerIdAndStatusIs(bookerId, Status.WAITING,
                         PageRequest.of(pageNumber, size, Sort.by("start").descending()));
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookings = repository.findByBookerIdAndStartBeforeAndEndAfter(bookerId, LocalDateTime.now(),
                         LocalDateTime.now(), PageRequest.of(pageNumber, size, Sort.by("start").descending()));
                 break;
-            case "PAST":
+            case PAST:
                 bookings = repository.findByBookerIdAndEndBefore(bookerId, LocalDateTime.now(),
                         PageRequest.of(pageNumber, size, Sort.by("start").descending()));
                 break;
+            case ALL:
             default:
-                throw new UnknownStateException("Unknown state: " + state);
+                bookings = repository.findByBookerId(bookerId, PageRequest.of(pageNumber, size, Sort.by("start").descending()));
+                break;
         }
         return bookings
                 .stream()

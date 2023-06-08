@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.status.Status;
+import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,11 +14,15 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    Optional<List<Booking>> findByItemIdAndBookerIdAndEndBeforeAndStatusNotLike(Long itemId, Long bookerId, LocalDateTime time, Status status);
+    List<Booking> findByItemIdAndBookerIdAndEndBeforeAndStatusNotLike(Long itemId, Long bookerId, LocalDateTime time, Status status);
 
     Optional<Booking> findFirst1ByItemIdAndStartBeforeOrderByStartDesc(Long itemId, LocalDateTime time);
 
     Optional<Booking> findFirst1ByItemIdAndStartAfterAndStatusNotLikeOrderByStartAsc(Long itemId, LocalDateTime time, Status status);
+
+    List<Booking> findFirst1ByItemInAndStartBeforeOrderByStartDesc(List<Item> items, LocalDateTime time);
+
+    List<Booking> findFirst1ByItemInAndStartAfterAndStatusNotLikeOrderByStartAsc(List<Item> items, LocalDateTime time, Status status);
 
     Page<Booking> findByBookerIdAndStatusIn(Long bookerId, Set<Status> states, Pageable pageable);
 
