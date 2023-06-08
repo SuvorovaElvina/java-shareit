@@ -22,7 +22,6 @@ import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
