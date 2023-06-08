@@ -123,36 +123,36 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllByOwner(long ownerId, String state, int from, int size) {
+    public List<BookingDto> getAllByOwner(long ownerId, String stateStr, int from, int size) {
         userService.getById(ownerId);
         Page<Booking> bookings;
         int pageNumber = (int) Math.ceil((double) from / size);
+        State state = State.fromString(stateStr);
         switch (state) {
-            case "ALL":
-                bookings = repository.findByOwnerId(ownerId, PageRequest.of(pageNumber, size, Sort.by("start").descending()));
-                break;
-            case "FUTURE":
+            case FUTURE:
                 bookings = repository.findByOwnerIdAndStatusIn(ownerId, Set.of(Status.WAITING, Status.APPROVED),
                         PageRequest.of(pageNumber, size, Sort.by("start").descending()));
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookings = repository.findByOwnerIdAndStatus(ownerId, Status.REJECTED,
                         PageRequest.of(pageNumber, size, Sort.by("start").descending()));
                 break;
-            case "WAITING":
+            case WAITING:
                 bookings = repository.findByOwnerIdAndStatus(ownerId, Status.WAITING,
                         PageRequest.of(pageNumber, size, Sort.by("start").descending()));
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookings = repository.findByOwnerIdCurrent(ownerId, LocalDateTime.now(),
                         PageRequest.of(pageNumber, size, Sort.by("start").descending()));
                 break;
-            case "PAST":
+            case PAST:
                 bookings = repository.findByOwnerIdPast(ownerId, LocalDateTime.now(),
                         PageRequest.of(pageNumber, size, Sort.by("start").descending()));
                 break;
+            case ALL:
             default:
-                throw new UnknownStateException("Unknown state: " + state);
+                bookings = repository.findByOwnerId(ownerId, PageRequest.of(pageNumber, size, Sort.by("start").descending()));
+                break;
         }
         return bookings
                 .stream()
