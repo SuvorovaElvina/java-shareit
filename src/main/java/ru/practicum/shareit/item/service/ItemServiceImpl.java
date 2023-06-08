@@ -95,14 +95,14 @@ public class ItemServiceImpl implements ItemService {
         Page<Item> itemsPage = repository.findByOwnerId(userId, PageRequest.of(pageNumber, size, Sort.by("id").ascending()));
         List<Item> items = itemsPage.toList();
 
-        Map<Long, Booking> bookingsBeforeMap = bookingRepository.findFirst1ByItemInAndStartBeforeOrderByStartDesc(items, LocalDateTime.now())
+        Map<Long, Booking> bookingsBeforeMap = bookingRepository.findByItemInAndStartBeforeOrderByStartDesc(items, LocalDateTime.now())
                 .stream()
                 .filter(booking -> booking.getItem() != null)
-                .collect(Collectors.toMap(booking -> booking.getItem().getId(), Function.identity()));
-        Map<Long, Booking> bookingsAfterMap = bookingRepository.findFirst1ByItemInAndStartAfterAndStatusNotLikeOrderByStartAsc(items, LocalDateTime.now(), Status.REJECTED)
+                .collect(Collectors.toMap(booking -> booking.getItem().getId(), Function.identity(), (b1, b2) -> b1));
+        Map<Long, Booking> bookingsAfterMap = bookingRepository.findByItemInAndStartAfterAndStatusNotLikeOrderByStartAsc(items, LocalDateTime.now(), Status.REJECTED)
                 .stream()
                 .filter(booking -> booking.getItem() != null)
-                .collect(Collectors.toMap(booking -> booking.getItem().getId(), Function.identity()));
+                .collect(Collectors.toMap(booking -> booking.getItem().getId(), Function.identity(), (b1, b2) -> b1));
         Map<Long, List<CommentDto>> commentsMap = commentRepository.findByItemIn(items, Sort.by(DESC, "created"))
                 .stream()
                 .filter(comment -> comment.getItem() != null)
