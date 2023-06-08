@@ -6,10 +6,13 @@ import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "item_requests")
-@Data
+@Getter
+@Setter
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,10 +23,24 @@ public class ItemRequest {
     Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     User owner;
 
     String description;
 
     @Column(name = "created_date")
     LocalDateTime created;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ItemRequest)) return false;
+        ItemRequest request = (ItemRequest) o;
+        return id.equals(request.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }
