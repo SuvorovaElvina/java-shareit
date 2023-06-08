@@ -31,6 +31,6 @@ public class Item {
     @Column(name = "is_available")
     boolean available;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     ItemRequest request;
 }
