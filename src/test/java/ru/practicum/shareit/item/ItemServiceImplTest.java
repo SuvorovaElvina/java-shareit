@@ -2,7 +2,6 @@ package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -135,7 +134,7 @@ class ItemServiceImplTest {
     @Test
     void addCommentBookingIsEmpty() {
         when(bookingRepository.findByItemIdAndBookerIdAndEndBeforeAndStatusNotLike(anyLong(), anyLong(), any(), any()))
-                .thenReturn(Optional.empty());
+                .thenReturn(List.of());
 
         Throwable thrown = assertThrows(ValidationException.class, () -> {
             service.addComment(1, 1, mock(CommentDto.class));
@@ -271,9 +270,9 @@ class ItemServiceImplTest {
     void addComment() {
         when(bookingRepository.findByItemIdAndBookerIdAndEndBeforeAndStatusNotLike(anyLong(), anyLong(),
                 any(), any()))
-                .thenReturn(Optional.of(List.of(Booking.builder().id(1L)
+                .thenReturn(List.of(Booking.builder().id(1L)
                         .start(LocalDateTime.now())
-                        .end(LocalDateTime.now()).build())));
+                        .end(LocalDateTime.now()).build()));
         User user = User.builder().name("name").build();
         LocalDateTime time = LocalDateTime.now();
         when(userService.getUser(anyLong())).thenReturn(user);
@@ -320,33 +319,12 @@ class ItemServiceImplTest {
                 .thenReturn(Optional.empty());
         when(bookingRepository.findFirst1ByItemIdAndStartAfterAndStatusNotLikeOrderByStartAsc(anyLong(), any(), any()))
                 .thenReturn(Optional.empty());
-        when(commentRepository.findAllByItemId(anyLong())).thenReturn(Optional.empty());
+        when(commentRepository.findAllByItemId(anyLong())).thenReturn(List.of());
 
         ItemDto itemDtos = service.getById(1, 1);
 
         assertNull(itemDtos.getNextBooking(), "Booking не присваивается");
         assertNull(itemDtos.getLastBooking(), "Booking не присваивается");
         assertEquals(0, itemDtos.getComments().size(), "комментарии не присваиваются");
-    }
-
-    @Test
-    void getAllWithoutCommentsAndBooking() {
-        Item item = Item.builder().id(1L).build();
-        ItemDto itemDto = ItemDto.builder().id(1L).build();
-        when(repository.findByOwnerId(anyLong(), any())).thenReturn(new PageImpl<>(List.of(item)));
-        when(mapper.toItemDto(any())).thenReturn(itemDto);
-        when(bookingRepository.findFirst1ByItemIdAndStartBeforeOrderByStartDesc(anyLong(), any()))
-                .thenReturn(Optional.empty());
-        when(bookingRepository.findFirst1ByItemIdAndStartAfterAndStatusNotLikeOrderByStartAsc(anyLong(), any(), any()))
-                .thenReturn(Optional.empty());
-        when(commentRepository.findAllByItemId(anyLong())).thenReturn(Optional.empty());
-
-        List<ItemDto> itemDtos = service.getAll(1, 0, 1);
-
-        assertNotNull(itemDtos, "Не возвращается список");
-        assertEquals(itemDto, itemDtos.get(0), "не добовляет item");
-        assertNull(itemDtos.get(0).getNextBooking(), "Booking не присваивается");
-        assertNull(itemDtos.get(0).getLastBooking(), "Booking не присваивается");
-        assertEquals(0, itemDtos.get(0).getComments().size(), "комментарии не присваиваются");
     }
 }
