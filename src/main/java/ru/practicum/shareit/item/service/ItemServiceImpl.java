@@ -25,11 +25,15 @@ import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @RequiredArgsConstructor
@@ -78,7 +82,7 @@ public class ItemServiceImpl implements ItemService {
             bookingRepository.findFirst1ByItemIdAndStartAfterAndStatusNotLikeOrderByStartAsc(id, LocalDateTime.now(), Status.REJECTED)
                     .ifPresent(booking -> itemDto.setNextBooking(bookingMapper.toItemsBookingDto(booking)));
         }
-        itemDto.setComments(commentRepository.findAllByItemId(item.getId()).orElse(List.of())
+        itemDto.setComments(commentRepository.findAllByItemId(item.getId())
                 .stream()
                 .map(commentMapper::toCommentDto)
                 .collect(toList()));
@@ -88,24 +92,35 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAll(long userId, int from, int size) {
         int pageNumber = (int) Math.ceil((double) from / size);
-        Page<Item> items = repository.findByOwnerId(userId, PageRequest.of(pageNumber, size, Sort.by("id").ascending()));
-        List<ItemDto> itemsDto = new ArrayList<>();
-        for (Item item : items) {
-            ItemDto itemDto = mapper.toItemDto(item);
+        Page<Item> itemsPage = repository.findByOwnerId(userId, PageRequest.of(pageNumber, size, Sort.by("id").ascending()));
+        List<Item> items = itemsPage.toList();
 
-            bookingRepository.findFirst1ByItemIdAndStartBeforeOrderByStartDesc(item.getId(), LocalDateTime.now())
-                    .ifPresent(booking -> itemDto.setLastBooking(bookingMapper.toItemsBookingDto(booking)));
-            bookingRepository.findFirst1ByItemIdAndStartAfterAndStatusNotLikeOrderByStartAsc(item.getId(), LocalDateTime.now(), Status.REJECTED)
-                    .ifPresent(booking -> itemDto.setNextBooking(bookingMapper.toItemsBookingDto(booking)));
+        Map<Long, Booking> bookingsBeforeMap = bookingRepository.findFirst1ByItemInAndStartBeforeOrderByStartDesc(items, LocalDateTime.now())
+                .stream()
+                .filter(booking -> booking.getItem() != null)
+                .collect(Collectors.toMap(booking -> booking.getItem().getId(), Function.identity()));
+        Map<Long, Booking> bookingsAfterMap = bookingRepository.findFirst1ByItemInAndStartAfterAndStatusNotLikeOrderByStartAsc(items, LocalDateTime.now(), Status.REJECTED)
+                .stream()
+                .filter(booking -> booking.getItem() != null)
+                .collect(Collectors.toMap(booking -> booking.getItem().getId(), Function.identity()));
+        Map<Long, List<CommentDto>> commentsMap = commentRepository.findByItemIn(items, Sort.by(DESC, "created"))
+                .stream()
+                .filter(comment -> comment.getItem() != null)
+                .collect(groupingBy(comment -> comment.getItem().getId(), Collectors.mapping(commentMapper::toCommentDto, Collectors.toList())));
 
-            itemDto.setComments(commentRepository.findAllByItemId(item.getId()).orElse(List.of())
-                    .stream()
-                    .map(commentMapper::toCommentDto)
-                    .collect(toList()));
-
-            itemsDto.add(itemDto);
-        }
-        return itemsDto;
+        List<ItemDto> itemDtos = items
+                .stream()
+                .map(mapper::toItemDto)
+                .peek(item -> {
+                    Optional.ofNullable(commentsMap.get(item.getId()))
+                            .ifPresent(item::setComments);
+                    Optional.ofNullable(bookingsBeforeMap.get(item.getId()))
+                            .ifPresent(booking -> item.setLastBooking(bookingMapper.toItemsBookingDto(booking)));
+                    Optional.ofNullable(bookingsAfterMap.get(item.getId()))
+                            .ifPresent(booking -> item.setNextBooking(bookingMapper.toItemsBookingDto(booking)));
+                })
+                .collect(toList());
+        return itemDtos;
     }
 
     @Override
@@ -123,9 +138,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto addComment(long userId, long itemId, CommentDto commentDto) {
-        Optional<List<Booking>> bookings =
+        List<Booking> bookings =
                 bookingRepository.findByItemIdAndBookerIdAndEndBeforeAndStatusNotLike(itemId, userId, LocalDateTime.now(), Status.REJECTED);
-        if (bookings.isPresent() && !bookings.get().isEmpty()) {
+        if (!bookings.isEmpty()) {
             Comment comment = commentMapper.toComment(service
                     .getUser(userId), getItem(itemId), commentDto, LocalDateTime.now());
             return commentMapper.toCommentDto(commentRepository.save(comment));
