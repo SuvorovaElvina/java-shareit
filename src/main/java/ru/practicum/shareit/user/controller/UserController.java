@@ -9,26 +9,22 @@ import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.validation.Create;
 import ru.practicum.shareit.validation.Update;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
-@Validated
 public class UserController {
     private final UserService service;
 
     @PostMapping
-    @Validated({Create.class})
-    public UserDto createUser(@Valid @RequestBody UserDto userDto) {
+    public UserDto createUser(@Validated({Create.class}) @RequestBody UserDto userDto) {
         return service.add(userDto);
     }
 
     @PatchMapping("/{userId}")
-    @Validated({Update.class})
-    public UserDto updateUser(@PathVariable("userId") long id, @Valid @RequestBody UserDto userDto) {
+    public UserDto updateUser(@PathVariable("userId") long id, @Validated({Update.class}) @RequestBody UserDto userDto) {
         return service.update(id, userDto);
     }
 
