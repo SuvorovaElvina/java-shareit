@@ -1,19 +1,24 @@
 package ru.practicum.shareit.request.dto;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.item.dto.ItemDto;
 
-import java.time.LocalDate;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemRequestDto {
     long id;
-    User user;
+    @NotBlank
+    @Size(max = 512)
     String description;
-    LocalDate created;
+    LocalDateTime created;
+    List<ItemDto> items;
 }
