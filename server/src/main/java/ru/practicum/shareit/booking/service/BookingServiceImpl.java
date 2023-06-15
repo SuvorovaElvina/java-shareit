@@ -11,9 +11,7 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.status.State;
 import ru.practicum.shareit.booking.status.Status;
-import ru.practicum.shareit.exception.IncorrectCountException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.UnknownStateException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.service.UserService;
@@ -52,25 +50,21 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto update(long userId, long bookingId, Boolean approved) {
-        if (Optional.ofNullable(approved).isPresent()) {
-            Booking booking = getBooking(bookingId);
-            if (booking.getItem().getOwner().getId() == userId) {
-                if (booking.getStatus().equals(Status.APPROVED) || booking.getStatus().equals(Status.REJECTED)) {
-                    throw new ValidationException("Вы уже подвертили или отказали бронирование. Повторное действие не возможно.");
-                }
-                if (approved) {
-                    booking.setStatus(Status.APPROVED);
-                } else {
-                    booking.setStatus(Status.REJECTED);
-                }
-                repository.save(booking);
-                return mapper.toBookingDto(booking);
-            } else {
-                throw new NotFoundException("Вы не являетесь владельцем вещи.");
+    public BookingDto update(long userId, long bookingId, boolean approved) {
+        Booking booking = getBooking(bookingId);
+        if (booking.getItem().getOwner().getId() == userId) {
+            if (booking.getStatus().equals(Status.APPROVED) || booking.getStatus().equals(Status.REJECTED)) {
+                throw new ValidationException("Вы уже подвертили или отказали бронирование. Повторное действие не возможно.");
             }
+            if (approved) {
+                booking.setStatus(Status.APPROVED);
+            } else {
+                booking.setStatus(Status.REJECTED);
+            }
+            repository.save(booking);
+            return mapper.toBookingDto(booking);
         } else {
-            throw new UnknownStateException("Обязательно должен быть указан approved");
+            throw new NotFoundException("Вы не являетесь владельцем вещи.");
         }
     }
 
