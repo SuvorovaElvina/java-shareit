@@ -8,10 +8,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
-import java.util.Set;
-
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -59,12 +55,4 @@ class ErrorHandlerControllerTest {
 
         mvc.perform(get("/users/1")).andExpect(status().isBadRequest());
     }
-
-    @Test
-    void getConstraintValidationException() throws Exception {
-        when(service.getById(anyLong())).thenThrow(new ConstraintViolationException(Set.of()));
-
-        mvc.perform(get("/users/1")).andExpect(status().isBadRequest());
-    }
-
 }

@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 import org.junit.jupiter.api.Test;
-import ru.practicum.shareit.exception.IncorrectCountException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -26,15 +25,6 @@ class UserServiceImplTest {
     private final UserMapper mapper = new UserMapper();
 
     private final UserService service = new UserServiceImpl(repository, mapper);
-
-    @Test
-    void getUserNegative() {
-        Throwable thrown = assertThrows(IncorrectCountException.class, () -> {
-            service.getUser(-1);
-        });
-
-        assertNotNull(thrown.getMessage());
-    }
 
     @Test
     void getUserUnknown() {

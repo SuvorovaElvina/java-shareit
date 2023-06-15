@@ -56,20 +56,6 @@ class UserControllerTest {
     }
 
     @Test
-    void createFailUser() throws Exception {
-        userDto.setEmail(null);
-        when(service.add(any()))
-                .thenReturn(userDto);
-
-        mvc.perform(post("/users")
-                        .content(mapper.writeValueAsString(userDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void updateUser() throws Exception {
         userDto.setName("Nike");
 

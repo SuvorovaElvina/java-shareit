@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request;
 
 import org.junit.jupiter.api.Test;
-import ru.practicum.shareit.request.model.ItemRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

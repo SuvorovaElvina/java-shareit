@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking;
 
 import org.junit.jupiter.api.Test;
-import ru.practicum.shareit.booking.model.Booking;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.comment;
 
 import org.junit.jupiter.api.Test;
-import ru.practicum.shareit.item.comment.model.Comment;
 
 import static org.junit.jupiter.api.Assertions.*;
 

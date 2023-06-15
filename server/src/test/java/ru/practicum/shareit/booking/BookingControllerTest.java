@@ -9,7 +9,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.booking.controller.BookingController;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
 
@@ -127,77 +126,5 @@ class BookingControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(List.of(bookingDto))));
-    }
-
-    @Test
-    void getAllBookingByOwnerSizeZero() throws Exception {
-        mvc.perform(get("/bookings/owner?from=0&size=0")
-                        .header("X-Sharer-User-Id", 1)
-                        .content(mapper.registerModule(new JavaTimeModule())
-                                .writeValueAsString(bookingDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void getAllBookingByOwnerSizeNegative() throws Exception {
-        mvc.perform(get("/bookings/owner?from=0&size=-1")
-                        .header("X-Sharer-User-Id", 1)
-                        .content(mapper.registerModule(new JavaTimeModule())
-                                .writeValueAsString(bookingDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void getAllBookingByOwnerFromNegative() throws Exception {
-        mvc.perform(get("/bookings/owner?from=-1&size=1")
-                        .header("X-Sharer-User-Id", 1)
-                        .content(mapper.registerModule(new JavaTimeModule())
-                                .writeValueAsString(bookingDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void getAllBookingByUserSizeZero() throws Exception {
-        mvc.perform(get("/bookings?from=0&size=0")
-                        .header("X-Sharer-User-Id", 1)
-                        .content(mapper.registerModule(new JavaTimeModule())
-                                .writeValueAsString(bookingDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void getAllBookingByUserSizeNegative() throws Exception {
-        mvc.perform(get("/bookings?from=0&size=-1")
-                        .header("X-Sharer-User-Id", 1)
-                        .content(mapper.registerModule(new JavaTimeModule())
-                                .writeValueAsString(bookingDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void getAllBookingByUserFromNegative() throws Exception {
-        mvc.perform(get("/bookings?from=-1&size=1")
-                        .header("X-Sharer-User-Id", 1)
-                        .content(mapper.registerModule(new JavaTimeModule())
-                                .writeValueAsString(bookingDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
     }
 }

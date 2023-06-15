@@ -3,22 +3,17 @@ package ru.practicum.shareit.booking;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.booking.status.Status;
-import ru.practicum.shareit.exception.IncorrectCountException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.UnknownStateException;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -130,42 +125,10 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void validateTimeExceptionStartBeforeNow() {
-        when(itemService.getItem(anyLong()))
-                .thenReturn(Item.builder()
-                        .owner(User.builder().id(2L).name("name").email("user@mail").build())
-                        .available(true)
-                        .name("name")
-                        .description("description")
-                        .build());
-        when(mapper.toBooking(any()))
-                .thenReturn(Booking.builder()
-                        .end(LocalDateTime.now().plusHours(1))
-                        .start(LocalDateTime.now().minusDays(1))
-                        .build());
-
-        Throwable thrown = assertThrows(ValidationException.class, () -> {
-            service.create(1, bookingDto);
-        });
-
-        assertNotNull(thrown.getMessage());
-    }
-
-    @Test
     void getBookingExceptionUnknown() {
-       when(repository.findById(anyLong())).thenReturn(Optional.empty());
+        when(repository.findById(anyLong())).thenReturn(Optional.empty());
         Throwable thrown = assertThrows(NotFoundException.class, () -> {
             service.getById(1, 1);
-        });
-
-        assertNotNull(thrown.getMessage());
-    }
-
-    @Test
-    void getBookingExceptionNegative() {
-        when(repository.findById(anyLong())).thenReturn(Optional.empty());
-        Throwable thrown = assertThrows(IncorrectCountException.class, () -> {
-            service.getById(1, -1);
         });
 
         assertNotNull(thrown.getMessage());
@@ -219,15 +182,6 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getAllByUserStateUnknown() {
-        Throwable thrown = assertThrows(UnknownStateException.class, () -> {
-            service.getAllByUser(1, "qwq", 0, 1);
-        });
-
-        assertNotNull(thrown.getMessage());
-    }
-
-    @Test
     void getAllByOwnerFromNegative() {
         Throwable thrown = assertThrows(IllegalArgumentException.class, () -> {
             service.getAllByOwner(1, "ALL", -1, 1);
@@ -249,24 +203,6 @@ class BookingServiceImplTest {
     void getAllByOwnerSizeZero() {
         Throwable thrown = assertThrows(IllegalArgumentException.class, () -> {
             service.getAllByOwner(1, "ALL", 0, 0);
-        });
-
-        assertNotNull(thrown.getMessage());
-    }
-
-    @Test
-    void getAllByOwnerStateUnknown() {
-        Throwable thrown = assertThrows(UnknownStateException.class, () -> {
-            service.getAllByOwner(1, "qwq", 0, 1);
-        });
-
-        assertNotNull(thrown.getMessage());
-    }
-
-    @Test
-    void updateApprovedIsNull() {
-        Throwable thrown = assertThrows(UnknownStateException.class, () -> {
-            service.update(1, 1, null);
         });
 
         assertNotNull(thrown.getMessage());
