@@ -7,10 +7,7 @@ import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Getter
@@ -20,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 public class BookItemRequestDto {
     @Positive
     @NotNull
-    long itemId;
+    Long itemId;
     @FutureOrPresent
     @NotNull
     LocalDateTime start;

@@ -14,7 +14,7 @@ import java.util.Map;
 public class ErrorHandlerController {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleValidationException(final ConstraintViolationException e) {
+    public Map<String, String> handleConstraintViolationException(final ConstraintViolationException e) {
         log.debug("Получен статус 400 Bad request {}", e.getMessage(), e);
         return Map.of(
                 "error", "Ошибка валидации",
@@ -24,7 +24,7 @@ public class ErrorHandlerController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleValidationException(final IllegalArgumentException e) {
+    public Map<String, String> handleIllegalArgumentException(final IllegalArgumentException e) {
         log.debug("Получен статус 400 Bad request {}", e.getMessage(), e);
         return Map.of(
                 "error", e.getMessage()

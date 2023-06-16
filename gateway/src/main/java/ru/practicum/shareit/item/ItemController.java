@@ -11,7 +11,6 @@ import ru.practicum.shareit.validation.Update;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -22,14 +21,12 @@ public class ItemController {
     private final ItemClient itemClient;
 
     @PostMapping
-    @Validated(Create.class)
-    public ResponseEntity<Object> createItem(@Positive @RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody ItemDto itemDto) {
+    public ResponseEntity<Object> createItem(@Positive @RequestHeader("X-Sharer-User-Id") long userId, @Validated(Create.class) @RequestBody ItemDto itemDto) {
         log.info("Creating item {}, userId={}", itemDto, userId);
         return itemClient.createItem(userId, itemDto);
     }
 
     @PostMapping("/{itemId}/comment")
-    @Validated({Create.class})
     public ResponseEntity<Object> createComment(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
                                                 @Positive @PathVariable long itemId,
                                                 @Valid @RequestBody CommentDto commentDto) {
@@ -37,10 +34,9 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    @Validated(Update.class)
     public ResponseEntity<Object> updateItem(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
                                              @Positive @PathVariable long itemId,
-                                             @RequestBody ItemDto itemDto) {
+                                             @Validated(Update.class) @RequestBody ItemDto itemDto) {
         log.info("Updating item {}, userId={}", itemDto, userId);
         return itemClient.updateItem(userId, itemId, itemDto);
     }
