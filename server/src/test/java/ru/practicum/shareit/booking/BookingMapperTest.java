@@ -5,7 +5,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.ItemsBookingDto;
 import ru.practicum.shareit.booking.status.Status;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 
