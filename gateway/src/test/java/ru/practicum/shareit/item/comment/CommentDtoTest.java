@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.comment;
 
 import org.junit.jupiter.api.Test;
-import ru.practicum.shareit.item.comment.dto.CommentDto;
+import ru.practicum.shareit.item.CommentDto;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -12,10 +12,6 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CommentDtoTest {
-    private final CommentDto commentDto = CommentDto.builder()
-            .text("qweqw")
-            .build();
-
     private static final Validator validator;
 
     static {
@@ -24,15 +20,18 @@ class CommentDtoTest {
     }
 
     @Test
-    void validateFailDescriptionUser() {
-        commentDto.setText("");
+    void validateCommentTextIsBlank() {
+        CommentDto commentDto = new CommentDto("");
 
         Set<ConstraintViolation<CommentDto>> violations = validator.validate(commentDto);
         assertEquals(1, violations.size(), "Создаётся пустой email");
+    }
 
-        commentDto.setText(null);
+    @Test
+    void validateCommentTextIsNull() {
+        CommentDto commentDto = new CommentDto(null);
 
-        violations = validator.validate(commentDto);
-        assertEquals(1, violations.size(), "Создаётся null email");
+        Set<ConstraintViolation<CommentDto>> violations = validator.validate(commentDto);
+        assertEquals(1, violations.size(), "Создаётся text null");
     }
 }
